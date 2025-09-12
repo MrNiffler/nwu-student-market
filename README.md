@@ -14,23 +14,24 @@ This is the starter backend project for the NWU Student Market. It provides a fo
 
 1. Clone the repository:
    ----------------------
-   git clone https://github.com/MRNiffler/nwu-student-market-backend.git
+   git clone https://github.com/MRNiffler/nwu-student-market.git
    cd nwu-student-market-backend
 
 2. Install dependencies:
    ----------------------
-   npm install
+Open the folder and navigate into the BACKEND part -> \nwu-student-market\BACKEND 
+Here right click in this folder run this in powershell(command prompt) ->   npm install
 
 3. Set up environment variables:
    ------------------------------
    - Copy .env.example to .env
      (e.g., cp .env.example .env on Linux/Mac)
-   - Or manually create .env in project root and copy the values
+   - Or manually create .env in project root and copy the values replacing username and password with your POSTGRESQL credentials.
 
 4. Start the backend server:
    ---------------------------
    npm run dev
-   - The server should run on http://localhost:5000
+   - The server should run on http://localhost:5000 can check by running in browser.
    - Root endpoint: GET / returns a success message
    - Health endpoint: GET /api/health returns DB status
 
