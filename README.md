@@ -14,7 +14,7 @@ This is the starter backend project for the NWU Student Market. It provides a fo
 
 1. Clone the repository:
    ----------------------
-   git clone https://github.com/MRNiffler/nwu-student-market.git
+   git clone https://github.com/MrNiffler/nwu-student-market.git
    cd nwu-student-market-backend
 
 2. Install dependencies:
