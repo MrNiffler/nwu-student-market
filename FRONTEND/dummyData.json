@@ -1,0 +1,23 @@
+[
+  {
+    "title": "NWU Hoodie",
+    "price": "R250",
+    "category": "Clothing",
+    "seller": "Alice",
+    "image": "https://via.placeholder.com/200x140"
+  },
+  {
+    "title": "Laptop Bag",
+    "price": "R300",
+    "category": "Accessories",
+    "seller": "Bob",
+    "image": "https://via.placeholder.com/200x140"
+  },
+  {
+    "title": "Textbook - CMPG 323",
+    "price": "R150",
+    "category": "Books",
+    "seller": "Carol",
+    "image": "https://via.placeholder.com/200x140"
+  }
+]
