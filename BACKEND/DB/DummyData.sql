@@ -1,8 +1,9 @@
--- SAMPLE DATA FOR STUDENT MARKETPLACE
+-- ========================================
+-- SAMPLE DATA FOR STUDENT MARKETPLACE (PostgreSQL)
 -- ========================================
 
 -- USERS
-INSERT INTO Users (nwu_email, full_name, password_hash, student_number, role, status)
+INSERT INTO Users (email, full_name, password_hash, student_number, role, status)
 VALUES
 ('john.doe@nwu.ac.za', 'John Doe', 'hashed_pw_123', '12345678', 'buyer', 'active'),
 ('jane.seller@nwu.ac.za', 'Jane Seller', 'hashed_pw_456', '87654321', 'seller', 'active'),
@@ -17,11 +18,11 @@ VALUES
 ('Tutoring', 3);  -- child of Services
 
 -- LISTINGS
-INSERT INTO Listings (seller_id, category_id, listing_type, title, description, price, status)
+INSERT INTO Listings (seller_id, category_id, type, description, price, status)
 VALUES
-(2, 1, 'product', 'Laptop for Sale', 'Dell Inspiron, good condition', 5000.00, 'active'),
-(2, 2, 'product', 'Used Textbook: Database Systems', 'Latest edition, like new', 600.00, 'active'),
-(2, 4, 'service', 'Tutoring in SQL', '1 hour SQL tutoring session', 200.00, 'active');
+(2, 1, 'product', 'Dell Inspiron Laptop, good condition', 5000.00, 'active'),
+(2, 2, 'product', 'Used Textbook: Database Systems, latest edition', 600.00, 'active'),
+(2, 4, 'service', '1 hour SQL tutoring session', 200.00, 'active');
 
 -- LISTING IMAGES
 INSERT INTO Listing_Images (listing_id, url, alt_text)
