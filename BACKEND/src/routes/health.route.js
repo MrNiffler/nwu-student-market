@@ -1,15 +1,9 @@
-import { Router } from "express";
-import { pool } from "../config/db.js";
+// src/routes/health.route.js
+import express from "express";
+import { checkHealth } from "../controllers/health.controller.js";
 
-const router = Router();
+const router = express.Router();
 
-router.get("/health", async (_req, res) => {
-  try {
-    await pool.query("SELECT 1");
-    res.json({ status: "ok", db: "ok" });
-  } catch (e) {
-    res.status(500).json({ status: "error", db: "down", error: e.message });
-  }
-});
+router.get("/", checkHealth);
 
 export default router;
