@@ -1,0 +1,67 @@
+body {
+  font-family: 'Roboto', sans-serif;
+  color: #1F2937;
+  background-color: #F9FAFB;
+  margin: 0;
+  padding: 0;
+}
+
+/* Navbar */
+.site-header {
+  background-color: #6C63FF;
+  color: white;
+  padding: 1rem 0;
+}
+
+.site-header .brand {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+}
+
+.main-nav {
+  display: flex;
+  gap: 1rem;
+}
+
+.nav-link {
+  color: white;
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  text-decoration: underline;
+}
+
+/* Hero */
+.hero {
+  padding: 2rem 0;
+  text-align: center;
+  background-color: #EDE9FE;
+}
+
+/* Search */
+.controls {
+  margin: 1rem 0;
+  text-align: center;
+}
+
+.controls input {
+  padding: 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #6C63FF;
+}
+
+/* Listings */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+/* Footer */
+.site-footer {
+  text-align: center;
+  padding: 1rem;
+  background: #6C63FF;
+  color: white;
+}
