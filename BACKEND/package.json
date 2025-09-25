@@ -11,12 +11,18 @@
     "test": "jest --runInBand"
   },
   "dependencies": {
+<<<<<<< HEAD
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
+=======
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+>>>>>>> 894009872e2ecbe198afddb1bc3c33600e0f8757
     "pg": "^8.11.5"
   },
   "devDependencies": {

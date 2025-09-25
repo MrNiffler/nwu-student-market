@@ -1,0 +1,177 @@
+:root {
+  font-family: 'Roboto', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color-scheme: light dark;
+  color: #1F2937; /* Dark grey */
+  background-color: #F9FAFB; /* Very light grey */
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #F9FAFB;
+}
+
+/* Links */
+a {
+  font-weight: 500;
+  color: #6C63FF; /* Primary purple */
+  text-decoration: none;
+}
+a:hover {
+  color: #5A54E0; /* Darker on hover */
+}
+
+/* Buttons */
+button {
+  border-radius: 8px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #6C63FF;
+  color: #fff;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+button:hover {
+  background-color: #5A54E0;
+}
+
+/* Navbar/Footer */
+.site-header, .site-footer {
+  width: 100%;
+  background-color: #6C63FF;
+  color: #fff;
+}
+.site-header .container, .site-footer .container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.site-header .brand {
+  font-family: 'Poppins', sans-serif;
+  font-size: 1.8rem;
+}
+.main-nav a {
+  margin-left: 20px;
+  color: #fff;
+}
+.main-nav a:hover {
+  color: #EDE9FE;
+}
+
+/* Common container for all pages */
+.page-container {
+  max-width: 1200px;
+  margin: 40px auto;
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 0 15px rgba(0,0,0,0.05);
+}
+
+/* Hero section */
+.hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.hero h2 {
+  font-family: 'Poppins', sans-serif;
+  font-size: 2.5rem;
+  margin-bottom: 10px;
+  color: #1F2937;
+}
+.hero p {
+  font-size: 1.2rem;
+  color: #4B5563;
+}
+
+/* Grid/cards */
+.grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+}
+.card {
+  background-color: #F9FAFB;
+  border-radius: 10px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 0 8px rgba(0,0,0,0.05);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: translateY(-5px);
+}
+.card img {
+  width: 100%;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+/* Form/controls */
+.controls input[type="search"] {
+  width: 100%;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #D1D5DB;
+  margin-bottom: 20px;
+  font-size: 1rem;
+}
+
+/* Profile page specific tweaks */
+.profile-header img {
+  width: 120px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+.profile-header h1 {
+  margin: 10px 0 5px;
+}
+.profile-header p {
+  color: #6B7280;
+}
+.business-info h2 {
+  color: #1F2937;
+}
+.business-info p, .business-info li {
+  line-height: 1.6;
+  color: #4B5563;
+}
+.contact a {
+  color: #6C63FF;
+}
+
+/* Active link styling */
+.main-nav .active-link {
+  border-bottom: 2px solid #EDE9FE; /* subtle highlight */
+  padding-bottom: 4px;
+}
+.main-nav a {
+  margin-left: 20px;
+  color: #fff;
+  font-weight: 500;
+  transition: color 0.2s, border-bottom 0.2s;
+}
+.main-nav a:hover {
+  color: #EDE9FE;
+}
+
+.site-footer p, .site-footer a {
+  color: #fff;
+  font-size: 0.9rem;
+}
+.site-footer a {
+  margin-left: 10px;
+}

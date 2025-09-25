@@ -1,0 +1,4 @@
+1. http://localhost:5000/api/listings
+2. http://localhost:5000/
+3. http://localhost:5000/uploads/1758493257030-328893352-textbook1.jpeg
+4. http://localhost:5000/api/listings/1/images
