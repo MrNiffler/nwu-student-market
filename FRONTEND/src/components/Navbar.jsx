@@ -1,26 +1,49 @@
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import React from "react";
 
 function Navbar() {
   const location = useLocation();
 
   return (
-    <nav className="navbar">
+    <header className="navbar">
       <div className="navbar-container">
-        <div className="logo">NWU Student Market</div>
+        <div className="logo">NWU Market</div>
         <ul className="nav-links">
           <li>
-            <Link className={location.pathname === "/" ? "active" : ""} to="/">Home</Link>
+            <Link
+              to="/"
+              className={location.pathname === "/" ? "active" : ""}
+            >
+              Home
+            </Link>
           </li>
           <li>
-            <Link className={location.pathname === "/marketplace" ? "active" : ""} to="/marketplace">Marketplace</Link>
+            <Link
+              to="/marketplace"
+              className={location.pathname === "/marketplace" ? "active" : ""}
+            >
+              Marketplace
+            </Link>
           </li>
           <li>
-            <Link className={location.pathname === "/profile" ? "active" : ""} to="/profile">Profile</Link>
+            <Link
+              to="/profile"
+              className={location.pathname === "/profile" ? "active" : ""}
+            >
+              Profile
+            </Link>
+          </li>
+          <li>
+            <Link
+              to="/login"
+              className={location.pathname === "/login" ? "active" : ""}
+            >
+              Login
+            </Link>
           </li>
         </ul>
       </div>
-    </nav>
+    </header>
   );
 }
 
