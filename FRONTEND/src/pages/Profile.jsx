@@ -2,33 +2,30 @@ import React from "react";
 
 function Profile() {
   return (
-    <main>
-      <div className="page-container">
-        <div className="profile-header">
-          <img src="/student-photo.jpg" alt="Student Photo" />
-          <h1>Thabo Mokoena</h1>
-          <p>Founder & CEO of ThaboTech Solutions</p>
+    <div className="page-container">
+      <section className="hero">
+        <h2>Your Profile</h2>
+        <p>Manage your listings, view messages, and update information.</p>
+      </section>
+
+      <div className="grid">
+        <div className="card">
+          <div className="card-content">
+            <h4>Profile Info</h4>
+            <p>Name: Thabo Mokoena</p>
+            <p>Email: thabo@thabotech.co.za</p>
+            <p>Role: Student Seller</p>
+          </div>
         </div>
 
-        <div className="business-info">
-          <h2>About the Business</h2>
-          <p>ThaboTech Solutions is a student-run tech startup focused on providing affordable web development and digital marketing services to small businesses in Gauteng. Founded in 2024, the company has helped over 30 local entrepreneurs establish their online presence.</p>
-
-          <h2>Services Offered</h2>
-          <ul>
-            <li>Website Design & Development</li>
-            <li>Social Media Management</li>
-            <li>SEO Optimization</li>
-            <li>Graphic Design</li>
-          </ul>
-        </div>
-
-        <div className="contact">
-          <p>📧 Email: <a href="mailto:thabo@thabotech.co.za">thabo@thabotech.co.za</a></p>
-          <p>🌐 Website: <a href="https://www.thabotech.co.za">www.thabotech.co.za</a></p>
+        <div className="card">
+          <div className="card-content">
+            <h4>Your Listings</h4>
+            <p>No active listings yet.</p>
+          </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }
 
