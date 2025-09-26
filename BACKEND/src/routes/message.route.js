@@ -1,5 +1,5 @@
 import express from "express";
-import db from "../config/db.js";
+import { pool } from "../config/db.js";
 
 const router = express.Router();
 

@@ -12,7 +12,6 @@ export const pool = new Pool({
   port: Number(process.env.DB_PORT || 5432),
 });
 
-// Quick self-test
 export async function assertDbConnection() {
   const { rows } = await pool.query("SELECT 1 as ok");
   if (!rows || !rows[0] || rows[0].ok !== 1) throw new Error("DB self-test failed");
