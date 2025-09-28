@@ -8,7 +8,7 @@ router.use(authMiddleware(['admin']));
 
 // GET all users
 router.get('/users', async (req, res) => {
-  const result = await pool.query('SELECT id, name, email, role FROM users');
+  const result = await pool.query('SELECT id, full_name, email, role FROM users');
   res.json(result.rows);
 });
 

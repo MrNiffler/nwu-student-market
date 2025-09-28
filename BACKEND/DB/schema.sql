@@ -70,19 +70,18 @@ CREATE TABLE Transactions (
     CONSTRAINT fk_transaction_buyer FOREIGN KEY (buyer_id) REFERENCES Users(id) ON DELETE CASCADE,
     CONSTRAINT fk_transaction_seller FOREIGN KEY (seller_id) REFERENCES Users(id) ON DELETE CASCADE
 );
-
 -- REVIEWS
 CREATE TABLE Reviews (
     id SERIAL PRIMARY KEY,
     reviewer_id INT NOT NULL,
     reviewee_id INT NOT NULL,
-    listing_id INT NOT NULL,
+    transaction_id INT NOT NULL,
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_review_reviewer FOREIGN KEY (reviewer_id) REFERENCES Users(id) ON DELETE CASCADE,
     CONSTRAINT fk_review_reviewee FOREIGN KEY (reviewee_id) REFERENCES Users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_review_listing FOREIGN KEY (listing_id) REFERENCES Listings(id) ON DELETE CASCADE
+    CONSTRAINT fk_review_transaction FOREIGN KEY (transaction_id) REFERENCES Transactions(id) ON DELETE CASCADE
 );
 
 -- MESSAGE THREADS
@@ -107,17 +106,3 @@ CREATE TABLE Messages (
     CONSTRAINT fk_message_thread FOREIGN KEY (thread_id) REFERENCES Message_Threads(id) ON DELETE CASCADE,
     CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES Users(id) ON DELETE CASCADE
 );
-CREATE TABLE Refresh_Tokens (
-  id SERIAL PRIMARY KEY,
-  user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
-  token_hash VARCHAR(128) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  expires_at TIMESTAMP NOT NULL,
-  revoked BOOLEAN DEFAULT FALSE,
-  replaced_by_token_hash VARCHAR(128),
-  user_agent TEXT,
-  ip_address INET,
-  last_used_at TIMESTAMP
-);
-
-CREATE INDEX idx_refresh_user_id ON Refresh_Tokens(user_id);

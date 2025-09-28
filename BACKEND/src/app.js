@@ -9,6 +9,10 @@ import ordersRouter from "./routes/orders.route.js";
 import messageRoutes from "./routes/message.route.js";
 import searchRouter from "./routes/search.route.js";
 import listingsRouter from "./routes/listings.route.js";
+import reviewsRouter from "./routes/reviews.route.js";
+import authRouter from "./routes/auth.js";
+import usersRouter from "./routes/user.js";
+import adminRouter from "./routes/admin.js";
 
 dotenv.config();
 
@@ -16,17 +20,19 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Static file serving (from member2)
-app.use("/uploads", express.static("uploads"));
-
 // Routes
+app.use("/uploads", express.static("uploads"));
 app.use("/api/health", healthRouter);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/transactions", transactionsRouter);
 app.use("/api/orders", ordersRouter);
 app.use("/api/search", searchRouter);
-app.use("/api", messageRoutes);
+app.use("/api/messages", messageRoutes);
 app.use("/api/listings", listingsRouter);
+app.use("/api/reviews", reviewsRouter);
+app.use("/api/auth", authRouter);       
+app.use("/api/users", usersRouter);     
+app.use("/api/admin", adminRouter);     
 
 // Root route
 app.get("/", (_req, res) => {
