@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import pkg from "pg";
+
 dotenv.config();
 
 const { Pool } = pkg;
@@ -13,6 +14,11 @@ export const pool = new Pool({
 });
 
 export async function assertDbConnection() {
-  const { rows } = await pool.query("SELECT 1 as ok");
-  if (!rows || !rows[0] || rows[0].ok !== 1) throw new Error("DB self-test failed");
+  try {
+    const { rows } = await pool.query("SELECT NOW()");
+    console.log("Database connected successfully at:", rows[0].now);
+  } catch (err) {
+    console.error("Database connection error:", err.message);
+    throw err;
+  }
 }

@@ -107,3 +107,17 @@ CREATE TABLE Messages (
     CONSTRAINT fk_message_thread FOREIGN KEY (thread_id) REFERENCES Message_Threads(id) ON DELETE CASCADE,
     CONSTRAINT fk_message_sender FOREIGN KEY (sender_id) REFERENCES Users(id) ON DELETE CASCADE
 );
+CREATE TABLE Refresh_Tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES Users(id) ON DELETE CASCADE,
+  token_hash VARCHAR(128) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  expires_at TIMESTAMP NOT NULL,
+  revoked BOOLEAN DEFAULT FALSE,
+  replaced_by_token_hash VARCHAR(128),
+  user_agent TEXT,
+  ip_address INET,
+  last_used_at TIMESTAMP
+);
+
+CREATE INDEX idx_refresh_user_id ON Refresh_Tokens(user_id);
