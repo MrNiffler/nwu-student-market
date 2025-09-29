@@ -1,0 +1,47 @@
+{
+  "info": {
+    "name": "Member 4 - Ratings & Reviews",
+    "_postman_id": "abcd-1234",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create Review",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/ratings",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"transaction_id\": 1,\n  \"reviewer_id\": 1,\n  \"reviewee_id\": 2,\n  \"rating\": 5,\n  \"comment\": \"Excellent seller\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Get Reviews for User",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/users/2/reviews"
+      }
+    },
+    {
+      "name": "Update Review",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/ratings/1",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"rating\": 4,\n  \"comment\": \"Good, but shipping was slow\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Delete Review",
+      "request": {
+        "method": "DELETE",
+        "url": "{{baseUrl}}/ratings/1"
+      }
+    }
+  ]
+}
