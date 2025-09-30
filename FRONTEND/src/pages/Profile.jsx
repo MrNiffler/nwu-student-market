@@ -1,32 +1,12 @@
+// src/pages/Profile.jsx
 import React from "react";
 
-function Profile() {
+export default function ProfilePage() {
   return (
-    <div className="page-container">
-      <section className="hero">
-        <h2>Your Profile</h2>
-        <p>Manage your listings, view messages, and update information.</p>
-      </section>
-
-      <div className="grid">
-        <div className="card">
-          <div className="card-content">
-            <h4>Profile Info</h4>
-            <p>Name: Thabo Mokoena</p>
-            <p>Email: thabo@thabotech.co.za</p>
-            <p>Role: Student Seller</p>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-content">
-            <h4>Your Listings</h4>
-            <p>No active listings yet.</p>
-          </div>
-        </div>
-      </div>
+    <div className="page profile-page">
+      <h1>My Profile</h1>
+      <p>This is your profile page.</p>
+      {/* You can later add real profile details here */}
     </div>
   );
 }
-
-export default Profile;

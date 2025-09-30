@@ -13,9 +13,15 @@ export default function SignInPage() {
     e.preventDefault();
     setError("");
     setBusy(true);
+
     try {
+      // Add a fake delay for UX (you can remove this in production)
       await new Promise((r) => setTimeout(r, 400));
+
+      // Sign in with your auth context
       await signIn(form.email, form.password);
+
+      // Redirect to profile or dashboard
       nav("/profile");
     } catch (err) {
       setError(err.message || "Failed to sign in");
@@ -30,8 +36,9 @@ export default function SignInPage() {
       <p className="muted">Sign in to continue to NWU Student Market</p>
 
       <form onSubmit={onSubmit} className="form">
-        <label>Email</label>
+        <label htmlFor="email">Email</label>
         <input
+          id="email"
           type="email"
           value={form.email}
           onChange={(e) => setForm({ ...form, email: e.target.value })}
@@ -39,8 +46,9 @@ export default function SignInPage() {
           required
         />
 
-        <label>Password</label>
+        <label htmlFor="password">Password</label>
         <input
+          id="password"
           type="password"
           value={form.password}
           onChange={(e) => setForm({ ...form, password: e.target.value })}
@@ -50,16 +58,18 @@ export default function SignInPage() {
 
         {error && <div className="error">{error}</div>}
 
-        <button className="btn btn-primary" disabled={busy}>
+        <button type="submit" className="btn btn-primary" disabled={busy}>
           {busy ? "Signing in..." : "Sign In"}
         </button>
       </form>
 
       <div className="spacer" />
+
       <div className="row">
         <span className="muted">No account?</span>
         <Link to="/signup">Create one</Link>
       </div>
+
       <div className="row">
         <span className="muted">Forgot your password?</span>
         <Link to="/forgot-password">Reset it</Link>

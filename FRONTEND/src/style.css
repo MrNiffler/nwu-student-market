@@ -29,26 +29,26 @@ body {
   font-weight: bold;
 }
 
+/* Navbar links - horizontal, no bullets */
 .nav-links {
   display: flex;
-  gap: 2rem;
-  list-style: none;
+  gap: 2rem; /* spacing between links */
   margin: 0;
   padding: 0;
 }
 
-.nav-links li a {
+.nav-links a {
   color: white;
   text-decoration: none;
   font-weight: 500;
   transition: color 0.2s ease;
 }
 
-.nav-links li a:hover {
-  color: #5A54E0; /* Slightly darker on hover */
+.nav-links a:hover {
+  color: #5A54E0; /* Slightly darker purple on hover */
 }
 
-.nav-links li a.active {
+.nav-links a.active {
   border-bottom: 2px solid #FFD700;
   padding-bottom: 0.2rem;
 }
@@ -116,7 +116,8 @@ body {
 }
 
 /* --- Search Bar --- */
-.search-bar, .controls input {
+.search-bar,
+.controls input {
   width: 100%;
   max-width: 500px;
   padding: 0.5rem 1rem;
@@ -199,7 +200,7 @@ button.secondary:hover {
   color: white;
 }
 
-/* --- Forms (Login Page) --- */
+/* --- Forms --- */
 .container {
   max-width: 400px;
   margin: 3rem auto;
@@ -237,4 +238,46 @@ button.secondary:hover {
   margin-top: 1rem;
   text-align: center;
   font-weight: 500;
+}
+
+.center-card {
+  max-width: 450px;
+  margin: 3rem auto;
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 1rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+}
+
+.muted {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.error {
+  color: #dc2626;
+  margin: 0.5rem 0;
+}
+
+.success {
+  color: #16a34a;
+  margin: 0.5rem 0;
+}
+
+.spacer {
+  height: 1rem;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
 }

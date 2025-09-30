@@ -8,15 +8,19 @@ import Profile from "./pages/Profile";
 function App() {
   return (
     <Router>
-      <Navbar />
-      <main>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/marketplace" element={<Marketplace />} />
-          <Route path="/profile" element={<Profile />} />
-        </Routes>
-      </main>
-      <Footer />
+      <div className="d-flex flex-column min-vh-100">
+        <Navbar />
+        <main className="flex-grow-1" style={{ padding: "2rem" }}>
+          <div className="page-container">
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/marketplace" element={<Marketplace />} />
+              <Route path="/profile" element={<Profile />} />
+            </Routes>
+          </div>
+        </main>
+        <Footer />
+      </div>
     </Router>
   );
 }

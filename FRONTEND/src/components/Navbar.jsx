@@ -1,50 +1,40 @@
-import { Link, useLocation } from "react-router-dom";
 import React from "react";
+import { Link, NavLink } from "react-router-dom";
+import "../style.css"; // Make sure this path is correct
 
-function Navbar() {
-  const location = useLocation();
-
+export default function Navbar() {
   return (
-    <header className="navbar">
+    <nav className="navbar">
       <div className="navbar-container">
-        <div className="logo">NWU Market</div>
+        <div className="logo">NWU Student Market</div>
         <ul className="nav-links">
           <li>
-            <Link
-              to="/"
-              className={location.pathname === "/" ? "active" : ""}
-            >
+            <NavLink to="/" className={({ isActive }) => isActive ? "active" : ""}>
               Home
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              to="/marketplace"
-              className={location.pathname === "/marketplace" ? "active" : ""}
-            >
+            <NavLink to="/marketplace" className={({ isActive }) => isActive ? "active" : ""}>
               Marketplace
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              to="/profile"
-              className={location.pathname === "/profile" ? "active" : ""}
-            >
+            <NavLink to="/profile" className={({ isActive }) => isActive ? "active" : ""}>
               Profile
-            </Link>
+            </NavLink>
           </li>
           <li>
-            <Link
-              to="/login"
-              className={location.pathname === "/login" ? "active" : ""}
-            >
-              Login
-            </Link>
+            <NavLink to="/signin" className={({ isActive }) => isActive ? "active" : ""}>
+              Sign In
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/signup" className={({ isActive }) => isActive ? "active" : ""}>
+              Sign Up
+            </NavLink>
           </li>
         </ul>
       </div>
-    </header>
+    </nav>
   );
 }
-
-export default Navbar;
