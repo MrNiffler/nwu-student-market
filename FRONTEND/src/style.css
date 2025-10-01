@@ -29,10 +29,9 @@ body {
   font-weight: bold;
 }
 
-/* Navbar links - horizontal, no bullets */
 .nav-links {
   display: flex;
-  gap: 2rem; /* spacing between links */
+  gap: 2rem;
   margin: 0;
   padding: 0;
 }
@@ -45,7 +44,7 @@ body {
 }
 
 .nav-links a:hover {
-  color: #5A54E0; /* Slightly darker purple on hover */
+  color: #5A54E0;
 }
 
 .nav-links a.active {
@@ -156,21 +155,22 @@ body {
 }
 
 .btn-secondary:hover {
-  background-color: #6C63FF;
-  color: white;
+  background-color: #EDE9FE;
 }
 
 /* ==========================
    Grid / Listings / Cards
 ========================== */
-.grid {
+.grid,
+.products-grid {
   display: grid;
   gap: 1.5rem;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
 }
 
 /* --- Cards --- */
-.card {
+.card,
+.product-card {
   background-color: white;
   border-radius: 10px;
   overflow: hidden;
@@ -180,28 +180,34 @@ body {
   flex-direction: column;
 }
 
-.card:hover {
+.card:hover,
+.product-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 18px rgba(0,0,0,0.15);
 }
 
-.product-img {
+.product-img,
+.product-image {
   width: 100%;
   height: 180px;
   object-fit: cover;
   border-radius: 8px;
 }
 
-.card-content {
+.card-content,
+.product-details {
   padding: 1rem;
   flex: 1;
 }
 
-.card-content h4 {
+.card-content h4,
+.product-details h4 {
   margin: 0 0 0.5rem 0;
+  font-family: 'Poppins', sans-serif;
 }
 
-.card-content p {
+.card-content p,
+.product-details p {
   margin: 0.25rem 0;
   color: #555;
 }
@@ -215,68 +221,56 @@ body {
 /* ==========================
    Card Actions (Cart/Wishlist)
 ========================== */
-.actions {
+.actions,
+.product-actions {
   display: flex;
   gap: 0.5rem;
   margin-top: auto;
 }
 
-.btn {
-  flex: 1;
-  padding: 0.5rem 0.8rem;
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.1s ease-in-out;
+.product-actions {
+  justify-content: space-between;
 }
 
 .btn-cart {
-  background: #4b0082; /* deep purple */
+  background: #6C63FF;
   color: #fff;
 }
 
 .btn-cart:hover {
-  background: #360061;
+  background: #5A54E0;
 }
 
 .btn-wishlist {
-  background: #f5f5f5;
-  color: #444;
-}
-
-.btn-wishlist:hover {
-  background: #ddd;
-}
-
-/* --- Buttons --- */
-button {
-  background-color: #6C63FF;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 0.5rem 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-button:hover {
-  background-color: #5A54E0;
-}
-
-/* Secondary button */
-button.secondary {
-  background-color: transparent;
+  background: transparent;
   border: 2px solid #6C63FF;
   color: #6C63FF;
 }
 
-button.secondary:hover {
-  background-color: #6C63FF;
-  color: white;
+.btn-wishlist:hover {
+  background-color: #EDE9FE;
 }
+
+/* Cart link under Marketplace */
+.cart-link {
+  text-align: center;
+  margin-top: 2rem;
+}
+
+/* --- Notifications --- */
+.notification {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  color: white;
+  font-size: 0.9rem;
+  z-index: 1000;
+}
+
+.notification.success { background-color: #6C63FF; }
+.notification.error { background-color: #FF4C4C; }
 
 /* --- Forms --- */
 .container {
@@ -386,42 +380,36 @@ button.secondary:hover {
   padding: 0.2rem 0.5rem;
   font-size: 0.8rem;
   color: #fff;
-  background-color: #f87171;
   border: none;
   border-radius: 5px;
   cursor: pointer;
+  transition: background 0.2s ease;
 }
 
-.summary button:hover {
+.summary button:first-of-type {
+  background-color: #6C63FF; /* Move to Cart */
+}
+
+.summary button:first-of-type:hover {
+  background-color: #5A54E0;
+}
+
+.summary button:last-of-type {
+  background-color: #f87171; /* Remove from cart/wishlist */
+}
+
+.summary button:last-of-type:hover {
   background-color: #dc2626;
 }
 
-.summary button,
-.page-container ul button {
-  margin-left: 0.5rem;
-  padding: 0.2rem 0.5rem;
-  font-size: 0.8rem;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+/* Marketplace Notification positioning */
+.notification-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 1000;
 }
-
-.page-container ul button:first-of-type {
-  background-color: #4b0082; /* Move to Cart */
-}
-
-.page-container ul button:first-of-type:hover {
-  background-color: #360061;
-}
-
-.page-container ul button:last-of-type {
-  background-color: #f87171; /* Remove */
-}
-
-.page-container ul button:last-of-type:hover {
-  background-color: #dc2626;
-}
-
-
 
