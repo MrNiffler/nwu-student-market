@@ -1,42 +1,49 @@
 import React from "react";
+import { removeFromCart, createOrder } from "../api/endpoints";
+import { Link } from "react-router-dom";
 
 function Cart({ cart, setCart }) {
-  const removeFromCart = (id) => {
-    setCart(cart.filter((item) => item.id !== id));
+  const handleRemove = (id) => {
+    removeFromCart(id).then(() => {
+      setCart(cart.filter((item) => item.id !== id));
+    });
   };
 
   const handleCheckout = () => {
-    if (cart.length === 0) {
-      alert("Your cart is empty!");
-      return;
-    }
-    alert("Checkout successful! 🎉");
-    setCart([]); // Clear the cart after checkout
+    createOrder({ items: cart }).then(() => {
+      alert("Order placed successfully!");
+      setCart([]);
+    });
   };
 
-  const totalPrice = cart.reduce((acc, item) => acc + item.price, 0);
+  if (cart.length === 0)
+    return (
+      <div className="page-container">
+        <h2>Your cart is empty 😢</h2>
+        <Link to="/marketplace" className="btn-primary">
+          Browse Marketplace
+        </Link>
+      </div>
+    );
 
   return (
     <div className="page-container">
       <h2>Your Cart</h2>
-      {cart.length === 0 ? (
-        <p>Your cart is empty.</p>
-      ) : (
-        <>
-          <ul>
-            {cart.map((item) => (
-              <li key={item.id}>
-                {item.title} - R{item.price} 
-                <button onClick={() => removeFromCart(item.id)}>Remove</button>
-              </li>
-            ))}
-          </ul>
-          <h3>Total: R{totalPrice}</h3>
-          <button className="btn-primary" onClick={handleCheckout}>
-            Checkout
-          </button>
-        </>
-      )}
+      {cart.map((item) => (
+        <div key={item.id} className="cart-item">
+          <img src={item.image} alt={item.title} className="cart-img" />
+          <div>
+            <h4>{item.title}</h4>
+            <p>R{item.price}</p>
+            <button onClick={() => handleRemove(item.id)} className="btn-secondary">
+              Remove
+            </button>
+          </div>
+        </div>
+      ))}
+      <button onClick={handleCheckout} className="btn-primary">
+        Checkout
+      </button>
     </div>
   );
 }
