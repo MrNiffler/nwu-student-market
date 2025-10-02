@@ -70,19 +70,18 @@ CREATE TABLE Transactions (
     CONSTRAINT fk_transaction_buyer FOREIGN KEY (buyer_id) REFERENCES Users(id) ON DELETE CASCADE,
     CONSTRAINT fk_transaction_seller FOREIGN KEY (seller_id) REFERENCES Users(id) ON DELETE CASCADE
 );
-
 -- REVIEWS
 CREATE TABLE Reviews (
     id SERIAL PRIMARY KEY,
     reviewer_id INT NOT NULL,
     reviewee_id INT NOT NULL,
-    listing_id INT NOT NULL,
+    transaction_id INT NOT NULL,
     rating INT CHECK (rating BETWEEN 1 AND 5),
     comment TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_review_reviewer FOREIGN KEY (reviewer_id) REFERENCES Users(id) ON DELETE CASCADE,
     CONSTRAINT fk_review_reviewee FOREIGN KEY (reviewee_id) REFERENCES Users(id) ON DELETE CASCADE,
-    CONSTRAINT fk_review_listing FOREIGN KEY (listing_id) REFERENCES Listings(id) ON DELETE CASCADE
+    CONSTRAINT fk_review_transaction FOREIGN KEY (transaction_id) REFERENCES Transactions(id) ON DELETE CASCADE
 );
 
 -- MESSAGE THREADS
