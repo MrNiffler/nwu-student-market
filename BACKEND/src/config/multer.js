@@ -1,16 +1,14 @@
-// configering the multer.js file which will play a huge role one uploading pictures
-const multer = require('multer');
-const path = require('path');
+// config/multer.js
+import multer from 'multer';
+import path from 'path';
 
 // Configure storage for uploaded files
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-  
+  destination(req, file, cb) {
     cb(null, 'uploads/');
   },
-  filename: function (req, file, cb) {
-    
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+  filename(req, file, cb) {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     cb(null, uniqueSuffix + '-' + file.originalname);
   }
 });
@@ -22,19 +20,19 @@ const fileFilter = (req, file, cb) => {
   const mimetype = allowedTypes.test(file.mimetype);
 
   if (mimetype && extname) {
-    return cb(null, true);
+    cb(null, true);
   } else {
     cb(new Error('Only image files (jpeg, jpg, png, gif, webp) are allowed!'), false);
   }
 };
 
-//We initializing multer
+// Initialize multer
 const upload = multer({
-  storage: storage,
+  storage,
   limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB file size limit to minimize the risk of someone trying to upload a huge image file size
+    fileSize: 50 * 1024 * 1024 // 50MB
   },
-  fileFilter: fileFilter
+  fileFilter
 });
 
-module.exports = upload;
+export default upload;

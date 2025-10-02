@@ -11,18 +11,19 @@
     "test": "jest --runInBand"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "bcrypt": "^5.1.1",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
+    "crypto": "^1.0.1",
+    "dotenv": "^16.6.1",
+    "express": "^4.21.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",
-=======
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2",
->>>>>>> 894009872e2ecbe198afddb1bc3c33600e0f8757
+    "jwks-rsa": "^3.2.0",
+    "multer": "^2.0.2",
+    "nodemailer": "^7.0.6",
+    "passport": "^0.7.0",
+    "passport-azure-ad": "^4.3.5",
     "pg": "^8.11.5"
   },
   "devDependencies": {
@@ -33,5 +34,9 @@
     "nodemon": "^3.1.0",
     "prettier": "^3.3.3",
     "supertest": "^7.0.0"
-  }
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
 }

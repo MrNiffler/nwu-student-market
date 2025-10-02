@@ -1,62 +1,68 @@
 -- ========================================
--- SAMPLE DATA FOR STUDENT MARKETPLACE (PostgreSQL)
+-- TEST DATA INSERTS 
 -- ========================================
 
 -- USERS
-INSERT INTO Users (email, full_name, password_hash, student_number, role, status)
+INSERT INTO Users (email, full_name, password_hash, student_number, role)
 VALUES
-('john.doe@nwu.ac.za', 'John Doe', 'hashed_pw_123', '12345678', 'buyer', 'active'),
-('jane.seller@nwu.ac.za', 'Jane Seller', 'hashed_pw_456', '87654321', 'seller', 'active'),
-('admin@nwu.ac.za', 'System Admin', 'hashed_pw_789', '11223344', 'admin', 'active');
+('alice@example.com', 'Alice Smith', 'hashedpassword1', 'S1001', 'buyer'),
+('bob@example.com', 'Bob Johnson', 'hashedpassword2', 'S1002', 'seller'),
+('carol@example.com', 'Carol Lee', 'hashedpassword3', 'S1003', 'seller'),
+('dave@example.com', 'Dave Brown', 'hashedpassword4', 'S1004', 'buyer'),
+('admin@example.com', 'Admin User', 'hashedpassword5', 'S0001', 'admin');
 
 -- CATEGORIES
-INSERT INTO Categories (name, parent_id)
+INSERT INTO Categories (name)
 VALUES
-('Electronics', NULL),
-('Books', NULL),
-('Services', NULL),
-('Tutoring', 3);  -- child of Services
+('Books'),
+('Electronics'),
+('Furniture'),
+('Services');
 
 -- LISTINGS
-INSERT INTO Listings (seller_id, category_id, type, description, price, status)
+INSERT INTO Listings (seller_id, category_id, type, description, price)
 VALUES
-(2, 1, 'product', 'Dell Inspiron Laptop, good condition', 5000.00, 'active'),
-(2, 2, 'product', 'Used Textbook: Database Systems, latest edition', 600.00, 'active'),
-(2, 4, 'service', '1 hour SQL tutoring session', 200.00, 'active');
+(2, 1, 'product', 'Calculus Textbook, lightly used', 300.00),
+(3, 2, 'product', 'Used Laptop Dell Inspiron', 4500.00),
+(2, 3, 'product', 'Second-hand Office Chair', 750.00),
+(3, 4, 'service', 'Tutoring Service: Mathematics', 200.00);
 
 -- LISTING IMAGES
 INSERT INTO Listing_Images (listing_id, url, alt_text)
 VALUES
-(1, 'https://example.com/images/laptop.jpg', 'Dell Inspiron Laptop'),
-(2, 'https://example.com/images/book.jpg', 'Database Systems Textbook');
+(1, 'uploads/book1.jpg', 'Calculus Textbook Cover'),
+(2, 'uploads/laptop1.jpg', 'Dell Inspiron Laptop'),
+(3, 'uploads/chair1.jpg', 'Office Chair'),
+(4, 'uploads/tutor1.jpg', 'Math Tutoring');
 
 -- BOOKINGS
 INSERT INTO Bookings (listing_id, buyer_id, start_time, end_time, status)
 VALUES
-(3, 1, '2025-09-20 14:00:00', '2025-09-20 15:00:00', 'confirmed');
+(1, 1, '2025-09-25 10:00', '2025-09-25 12:00', 'confirmed'),
+(2, 4, '2025-09-26 14:00', '2025-09-26 16:00', 'requested');
 
 -- TRANSACTIONS
 INSERT INTO Transactions (listing_id, buyer_id, seller_id, amount, status)
 VALUES
-(1, 1, 2, 5000.00, 'paid'),
-(2, 1, 2, 600.00, 'pending');
+(1, 1, 2, 300.00, 'paid'),
+(2, 4, 3, 4500.00, 'pending');
 
--- REVIEWS
-INSERT INTO Reviews (reviewer_id, reviewee_id, listing_id, rating, comment)
+-- REVIEWS (using transaction_id now)
+INSERT INTO Reviews (reviewer_id, reviewee_id, transaction_id, rating, comment)
 VALUES
-(1, 2, 1, 5, 'Great laptop, works perfectly!'),
-(1, 2, 2, 4, 'Book was in good condition, but price a bit high.');
+(1, 2, 1, 5, 'Great seller, fast delivery!'),
+(4, 3, 2, 4, 'Laptop in good condition');
 
 -- MESSAGE THREADS
 INSERT INTO Message_Threads (listing_id, buyer_id, seller_id)
 VALUES
 (1, 1, 2),
-(3, 1, 2);
+(2, 4, 3);
 
 -- MESSAGES
 INSERT INTO Messages (thread_id, sender_id, body)
 VALUES
-(1, 1, 'Hi, is the laptop still available?'),
-(1, 2, 'Yes, it is! Do you want to meet on campus?'),
-(2, 1, 'Can I book a tutoring session for this weekend?'),
-(2, 2, 'Sure, Saturday afternoon works.');
+(1, 1, 'Hi, is the textbook still available?'),
+(1, 2, 'Yes, it is available.'),
+(2, 4, 'Can I negotiate the laptop price?'),
+(2, 3, 'Sure, make me an offer.');
