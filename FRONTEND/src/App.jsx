@@ -7,6 +7,8 @@ import Marketplace from "./pages/Marketplace";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
+import NotFoundPage from "./NotFoundPage";
+import AboutPage from "./AboutPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -48,6 +50,14 @@ function App() {
       <Footer />
     </Router>
   );
+
+function App() {
+  return <AboutPage />;
+}
+
+function App() {
+  return <NotFoundPage />;
+}
 }
 
 export default App;
