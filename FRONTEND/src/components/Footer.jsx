@@ -1,18 +1,20 @@
 import React from "react";
+import { Link } from "react-router-dom";
+import "../style.css";
 
-function Footer() {
+export default function Footer() {
   return (
     <footer className="footer">
       <div className="footer-container">
-        <p>&copy; 2025 NWU Student Market. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} NWU Student Market. All rights reserved.</p>
         <div className="footer-links">
-          <a href="/">Home</a>
-          <a href="/marketplace">Marketplace</a>
-          <a href="/profile">Profile</a>
+          <Link to="/">Home</Link>
+          <Link to="/marketplace">Marketplace</Link>
+          <Link to="/profile">Profile</Link>
+          <Link to="/signin">Sign In</Link>
+          <Link to="/signup">Sign Up</Link>
         </div>
       </div>
     </footer>
   );
 }
-
-export default Footer;

@@ -20,19 +20,21 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
+// Static files
 app.use("/uploads", express.static("uploads"));
+
+// Routes
 app.use("/api/health", healthRouter);
 app.use("/api/bookings", bookingsRouter);
 app.use("/api/transactions", transactionsRouter);
 app.use("/api/orders", ordersRouter);
-app.use("/api/search", searchRouter);
 app.use("/api/messages", messageRoutes);
+app.use("/api/search", searchRouter);
 app.use("/api/listings", listingsRouter);
 app.use("/api/reviews", reviewsRouter);
-app.use("/api/auth", authRouter);       
-app.use("/api/users", usersRouter);     
-app.use("/api/admin", adminRouter);     
+app.use("/api/auth", authRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/admin", adminRouter);
 
 // Root route
 app.get("/", (_req, res) => {
