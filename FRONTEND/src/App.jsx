@@ -7,8 +7,8 @@ import Marketplace from "./pages/Marketplace";
 import Profile from "./pages/Profile";
 import Cart from "./pages/Cart";
 import Wishlist from "./pages/Wishlist";
-import NotFoundPage from "./NotFoundPage";
-import AboutPage from "./AboutPage";
+import AboutPage from "./pages/AboutPage";
+import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
   const [cart, setCart] = useState([]);
@@ -16,48 +16,39 @@ function App() {
 
   return (
     <Router>
-      <Navbar cartCount={cart.length} wishlistCount={wishlist.length} />
-
-      <main style={{ minHeight: "80vh", padding: "2rem" }}>
+      <Navbar />
+      <main style={{ minHeight: "80vh" }}>
         <Routes>
+          {/* Main pages */}
           <Route path="/" element={<Home />} />
-          <Route 
-            path="/marketplace" 
+          <Route
+            path="/marketplace"
             element={
-              <Marketplace 
-                cart={cart} 
-                setCart={setCart} 
-                wishlist={wishlist} 
-                setWishlist={setWishlist} 
+              <Marketplace
+                cart={cart}
+                setCart={setCart}
+                wishlist={wishlist}
+                setWishlist={setWishlist}
               />
-            } 
+            }
           />
-          <Route 
-            path="/profile" 
-            element={<Profile />} 
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/about" element={<AboutPage />} />
+
+          {/* Cart & Wishlist */}
+          <Route path="/cart" element={<Cart cart={cart} />} />
+          <Route
+            path="/wishlist"
+            element={<Wishlist wishlist={wishlist} />}
           />
-          <Route 
-            path="/cart" 
-            element={<Cart cart={cart} setCart={setCart} />} 
-          />
-          <Route 
-            path="/wishlist" 
-            element={<Wishlist wishlist={wishlist} setWishlist={setWishlist} />} 
-          />
+
+          {/* Catch-all for invalid routes */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
-
       <Footer />
     </Router>
   );
-
-function App() {
-  return <AboutPage />;
-}
-
-function App() {
-  return <NotFoundPage />;
-}
 }
 
 export default App;
