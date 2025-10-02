@@ -10,9 +10,35 @@ import Wishlist from "./pages/Wishlist";
 import AboutPage from "./pages/AboutPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
+// Notification component (reusable)
+function Notification({ message, type, onClose }) {
+  useState(() => {
+    const timer = setTimeout(() => onClose(), 3000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`notification ${type}`}>
+      {message}
+    </div>
+  );
+}
+
 function App() {
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
+  const [notifications, setNotifications] = useState([]);
+
+  // Add notification
+  const addNotification = (message, type = "success") => {
+    const id = Date.now();
+    setNotifications(prev => [...prev, { id, message, type }]);
+  };
+
+  // Remove notification
+  const removeNotification = (id) => {
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
 
   return (
     <Router>
@@ -29,23 +55,48 @@ function App() {
                 setCart={setCart}
                 wishlist={wishlist}
                 setWishlist={setWishlist}
+                addNotification={addNotification}
+              />
+            }
+          />
+          <Route
+            path="/cart"
+            element={
+              <Cart
+                cart={cart}
+                setCart={setCart}
+                addNotification={addNotification}
+              />
+            }
+          />
+          <Route
+            path="/wishlist"
+            element={
+              <Wishlist
+                wishlist={wishlist}
+                setWishlist={setWishlist}
+                addNotification={addNotification}
               />
             }
           />
           <Route path="/profile" element={<Profile />} />
           <Route path="/about" element={<AboutPage />} />
-
-          {/* Cart & Wishlist */}
-          <Route path="/cart" element={<Cart cart={cart} />} />
-          <Route
-            path="/wishlist"
-            element={<Wishlist wishlist={wishlist} />}
-          />
-
-          {/* Catch-all for invalid routes */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
+
+      {/* Notifications */}
+      <div className="notifications-container">
+        {notifications.map((notification) => (
+          <Notification
+            key={notification.id}
+            message={notification.message}
+            type={notification.type}
+            onClose={() => removeNotification(notification.id)}
+          />
+        ))}
+      </div>
+
       <Footer />
     </Router>
   );
