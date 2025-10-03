@@ -17,6 +17,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import NotFoundPage from "./pages/NotFoundPage";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
+import CheckoutPage from "./pages/CheckoutPage";
 
 function App() {
   const [cart, setCart] = useState([
@@ -60,7 +61,6 @@ function App() {
                 setCart={setCart}
                 wishlist={wishlist}
                 setWishlist={setWishlist}
-                addNotification={addNotification}
               />
             }
           />
@@ -89,6 +89,10 @@ function App() {
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/checkout"
+            element={<CheckoutPage cart={cart} />}
+          />
           <Route path="/success" element={<SuccessPage />} />
           <Route path="/cancel" element={<CancelPage />} />
           <Route path="*" element={<NotFoundPage />} />
