@@ -1,6 +1,8 @@
 import React from "react";
 import { removeFromWishlist } from "../api/endpoints";
 import { Link } from "react-router-dom";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
+
 
 function Wishlist({ wishlist, setWishlist }) {
   const handleRemove = (id) => {

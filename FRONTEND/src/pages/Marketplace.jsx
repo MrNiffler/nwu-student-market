@@ -6,6 +6,8 @@ import {
   addToWishlist,
 } from "../api/endpoints";
 import "../style.css";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
+
 
 function Notification({ message, type, onClose }) {
   useEffect(() => {

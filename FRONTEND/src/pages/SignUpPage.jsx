@@ -1,10 +1,11 @@
+import "./SignUpPage.css"; 
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { isEmail, passwordStrong, notEmpty } from "../utils/validators";
 
 export default function SignUpPage() {
-  const { signUp } = useAuth();
+  const { signUp } = useAuth(); // Using AuthContext
   const nav = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
@@ -20,6 +21,8 @@ export default function SignUpPage() {
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+
+    // ✅ Validations
     if (!notEmpty(form.firstName) || !notEmpty(form.lastName)) {
       setError("Please enter your name");
       return;
@@ -40,10 +43,16 @@ export default function SignUpPage() {
     setBusy(true);
     try {
       await new Promise((r) => setTimeout(r, 400));
+
+      // ✅ Sign up with AuthContext
       await signUp(form);
+
       nav("/profile");
+
+      // --- OLD auth code (commented) ---
+      // await oldSignUp(form);
     } catch (err) {
-      setError(err.message || "Failed to sign up");
+      setError(err?.message || "Failed to sign up");
     } finally {
       setBusy(false);
     }
