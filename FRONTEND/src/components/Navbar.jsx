@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { FaShoppingCart, FaHeart } from "react-icons/fa";
 import "./Navbar.css";
 
 function Navbar({ cartCount = 0, wishlistCount = 0 }) {
@@ -24,13 +25,15 @@ function Navbar({ cartCount = 0, wishlistCount = 0 }) {
           <Link to="/signup">Sign Up</Link>
         </li>
         <li>
-          <Link to="/wishlist">
-            Wishlist {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
+          <Link to="/wishlist" className="icon-link">
+            <FaHeart className="nav-icon" />
+            {wishlistCount > 0 && <span className="badge">{wishlistCount}</span>}
           </Link>
         </li>
         <li>
-          <Link to="/cart">
-            Cart {cartCount > 0 && <span className="badge">{cartCount}</span>}
+          <Link to="/cart" className="icon-link">
+            <FaShoppingCart className="nav-icon" />
+            {cartCount > 0 && <span className="badge">{cartCount}</span>}
           </Link>
         </li>
       </ul>
@@ -39,5 +42,3 @@ function Navbar({ cartCount = 0, wishlistCount = 0 }) {
 }
 
 export default Navbar;
-
-

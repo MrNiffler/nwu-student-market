@@ -54,4 +54,26 @@
   font-weight: 500;
 }
 
+.icon-link {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: white;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.nav-icon {
+  font-size: 1.2rem;
+  color: white;
+}
+
+.badge {
+  background-color: #FFD700;
+  color: #1F2937;
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: 12px;
+}
+
 

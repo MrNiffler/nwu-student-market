@@ -1,6 +1,7 @@
 import React from "react";
-import { removeFromCart, createOrder } from "../api/endpoints";
+import { removeFromCart } from "../api/endpoints";
 import { Link } from "react-router-dom";
+import { FaShoppingCart } from "react-icons/fa";
 
 function Cart({ cart, setCart }) {
   const handleRemove = (id) => {
@@ -10,16 +11,29 @@ function Cart({ cart, setCart }) {
   };
 
   const handleCheckout = () => {
-    createOrder({ items: cart }).then(() => {
-      alert("Order placed successfully!");
-      setCart([]);
-    });
+    const dummyUser = {
+      email: "testuser@nwu.ac.za",
+    };
+
+    fetch("http://localhost:5000/api/transactions/payfast", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ items: cart, user: dummyUser }),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        window.location.href = data.redirectUrl;
+      })
+      .catch((err) => {
+        console.error("Checkout error:", err);
+        alert("Payment failed. Try again.");
+      });
   };
 
   if (cart.length === 0)
     return (
       <div className="page-container">
-        <h2>Your cart is empty 😢</h2>
+        <h2><FaShoppingCart /> Your cart is empty 😢</h2>
         <Link to="/marketplace" className="btn-primary">
           Browse Marketplace
         </Link>
@@ -28,7 +42,7 @@ function Cart({ cart, setCart }) {
 
   return (
     <div className="page-container">
-      <h2>Your Cart</h2>
+      <h2><FaShoppingCart /> Your Cart</h2>
       {cart.map((item) => (
         <div key={item.id} className="cart-item">
           <img src={item.image} alt={item.title} className="cart-img" />

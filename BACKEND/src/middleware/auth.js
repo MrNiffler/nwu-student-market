@@ -1,6 +1,6 @@
 
 import { verifyToken } from '../config/jwt.js';
-import pool from '../config/db.js';
+import { pool } from '../config/db.js';
 
 export const authenticate = async (req, res, next) => {
   const authHeader = req.headers.authorization;
@@ -21,7 +21,7 @@ export const authenticate = async (req, res, next) => {
     res.status(401).json({ message: 'Invalid or expired token' });
   }
 };
-=======
+
 import jwt from 'jsonwebtoken';
 import dotenv from 'dotenv';
 dotenv.config();
