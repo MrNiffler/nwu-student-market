@@ -1,23 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import productsData from "../data/products"; // Local product data
-import "../style.css"; // We'll define the new CSS
+import {
+  getAllListings,
+  addToCart,
+  addToWishlist,
+} from "../api/endpoints";
+import "../style.css";
 
-// Notification component
 function Notification({ message, type, onClose }) {
   useEffect(() => {
     const timer = setTimeout(() => onClose(), 3000);
     return () => clearTimeout(timer);
   }, [onClose]);
 
-  return (
-    <div className={`notification ${type}`}>
-      {message}
-    </div>
-  );
+  return <div className={`notification ${type}`}>{message}</div>;
 }
 
-// Spinner component
 function Spinner() {
   return (
     <div className="spinner-container">
@@ -31,40 +29,41 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   const [loading, setLoading] = useState(true);
   const [notifications, setNotifications] = useState([]);
 
-  // Add notification
   const addNotification = (message, type = "success") => {
     const id = Date.now();
-    setNotifications(prev => [...prev, { id, message, type }]);
+    setNotifications((prev) => [...prev, { id, message, type }]);
   };
 
-  // Remove notification
   const removeNotification = (id) => {
-    setNotifications(prev => prev.filter(n => n.id !== id));
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  // Load products
   useEffect(() => {
     setLoading(true);
-    setProducts(productsData);
-    setLoading(false);
-    addNotification("Products loaded successfully!", "success");
+    getAllListings()
+      .then((res) => {
+        setProducts(res.data);
+        setLoading(false);
+        addNotification("Products loaded successfully!", "success");
+      })
+      .catch(() => {
+        setLoading(false);
+        addNotification("Failed to load products!", "error");
+      });
   }, []);
 
-  // Add to cart
   const handleAddToCart = (product) => {
-    if (!cart.find(item => item.id === product.id)) {
-      setCart([...cart, product]);
+    if (!cart.find((item) => item.id === product.id)) {
+      addToCart(product).then(() => setCart([...cart, product]));
       addNotification(`${product.title} added to cart 🛒`, "success");
     } else {
       addNotification(`${product.title} is already in your cart!`, "error");
     }
   };
 
-  // Add to wishlist
   const handleAddToWishlist = (product) => {
-    if (!wishlist) return; // Safety check
-    if (!wishlist.find(item => item.id === product.id)) {
-      setWishlist([...wishlist, product]);
+    if (!wishlist.find((item) => item.id === product.id)) {
+      addToWishlist(product).then(() => setWishlist([...wishlist, product]));
       addNotification(`${product.title} added to wishlist ❤️`, "success");
     } else {
       addNotification(`${product.title} is already in your wishlist!`, "error");
@@ -85,13 +84,9 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
           {products.length === 0 ? (
             <p>No listings found.</p>
           ) : (
-            products.map(product => (
+            products.map((product) => (
               <div key={product.id} className="product-card">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="product-image"
-                />
+                <img src={product.image} alt={product.title} className="product-image" />
                 <div className="product-details">
                   <h4>{product.title}</h4>
                   <p>{product.description}</p>
@@ -117,7 +112,7 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
         </Link>
       </div>
 
-      {notifications.map(notification => (
+      {notifications.map((notification) => (
         <Notification
           key={notification.id}
           message={notification.message}
