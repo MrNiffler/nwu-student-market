@@ -1,3 +1,4 @@
+import "./SignInPage.css";
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
@@ -15,7 +16,7 @@ export default function SignInPage() {
     setBusy(true);
 
     try {
-      // Add a fake delay for UX (you can remove this in production)
+      
       await new Promise((r) => setTimeout(r, 400));
 
       // Sign in with your auth context
@@ -76,4 +77,5 @@ export default function SignInPage() {
       </div>
     </div>
   );
+
 }

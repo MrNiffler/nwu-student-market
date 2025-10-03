@@ -87,11 +87,100 @@ body {
 }
 
 /* --- Page Container --- */
+/* Container */
 .page-container {
-  max-width: 1200px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* centers everything */
+  padding: 2rem;
 }
+
+/* Hero Section */
+.hero {
+  background: #f3e8ff; /* light purple background */
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+  max-width: 800px; /* keeps it from stretching */
+  margin-bottom: 2rem;
+}
+
+.hero h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+/* Search Bar */
+.controls {
+  width: 100%;
+  max-width: 500px;
+  margin-bottom: 2rem;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+}
+
+/* Listings */
+.listings {
+  width: 100%;
+  max-width: 1200px;
+}
+
+.listings h3 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+/* Grid Layout */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Card */
+.card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  padding: 1rem;
+  text-align: center;
+}
+
+.product-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.price {
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.btn-primary {
+  display: inline-block;
+  background: #7c3aed;
+  color: #fff;
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: #6d28d9;
+}
+
 
 /* --- Hero Section --- */
 .hero {
