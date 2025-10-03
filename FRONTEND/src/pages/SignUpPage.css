@@ -85,6 +85,12 @@ body {
   font-size: 0.9rem;
 }
 
+.success {
+  color: green;
+  margin-bottom: 15px;
+  font-size: 0.9rem;
+}
+
 button {
   border-radius: var(--border-radius);
   border: none;
@@ -135,6 +141,48 @@ a:hover {
   color: var(--color-primary-hover);
 }
 
+/* ----------------- TOOLTIP STYLES ----------------- */
+.tooltip-wrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+}
+
+.tooltip {
+  visibility: hidden;
+  width: max-content;
+  max-width: 250px;
+  background-color: #333;
+  color: #fff;
+  text-align: left;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  position: absolute;
+  z-index: 1;
+  top: -30px;  /* show above input */
+  left: 0;     /* align with input start */
+  opacity: 0;
+  transition: opacity 0.2s, transform 0.2s;
+  transform: translateY(5px);
+}
+
+.tooltip-wrapper:hover .tooltip {
+  visibility: visible;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.checkbox-wrapper {
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.85rem;
+  color: var(--color-muted);
+}
+
+/* ----------------- RESPONSIVE ----------------- */
 @media (max-width: 480px) {
   .center-card {
     padding: 30px 20px;
@@ -148,5 +196,12 @@ a:hover {
   button {
     font-size: 0.95rem;
     padding: 0.6em 1.2em;
+  }
+
+  .tooltip {
+    top: -40px; /* slightly above for mobile */
+    left: 0;
+    width: 100%;
+    font-size: 11px;
   }
 }

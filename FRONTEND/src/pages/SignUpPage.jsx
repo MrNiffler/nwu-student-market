@@ -1,12 +1,9 @@
-import "./SignUpPage.css"; 
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 import { isEmail, passwordStrong, notEmpty } from "../utils/validators";
+import "./SignUpPage.css";
 
 export default function SignUpPage() {
-  const { signUp } = useAuth(); // Using AuthContext
-  const nav = useNavigate();
   const [form, setForm] = useState({
     firstName: "",
     lastName: "",
@@ -15,44 +12,72 @@ export default function SignUpPage() {
     password: "",
     confirm: "",
   });
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [success, setSuccess] = useState("");
 
   const onSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
-    // ✅ Validations
+    // --- Validations ---
     if (!notEmpty(form.firstName) || !notEmpty(form.lastName)) {
       setError("Please enter your name");
       return;
     }
+
     if (!isEmail(form.email)) {
       setError("Enter a valid email");
       return;
     }
+
     if (!passwordStrong(form.password)) {
-      setError("Password must be 8+ chars and include letters and numbers");
+      setError(
+        "Password must be at least 8 characters and include letters and numbers"
+      );
       return;
     }
+
     if (form.password !== form.confirm) {
       setError("Passwords do not match");
       return;
     }
 
     setBusy(true);
+
     try {
-      await new Promise((r) => setTimeout(r, 400));
+      // --- UAT: Store in localStorage instead of backend ---
+      await new Promise((r) => setTimeout(r, 500)); // simulate delay
 
-      // ✅ Sign up with AuthContext
-      await signUp(form);
+      const users = JSON.parse(localStorage.getItem("uatUsers") || "[]");
+      if (users.some((u) => u.email === form.email)) {
+        throw new Error("Email already registered");
+      }
 
-      nav("/profile");
+      users.push({
+        firstName: form.firstName,
+        lastName: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        password: form.password,
+      });
 
-      // --- OLD auth code (commented) ---
-      // await oldSignUp(form);
+      localStorage.setItem("uatUsers", JSON.stringify(users));
+      setSuccess(`Signup successful! Welcome, ${form.firstName}`);
+      setForm({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        password: "",
+        confirm: "",
+      });
     } catch (err) {
-      setError(err?.message || "Failed to sign up");
+      setError(err.message);
     } finally {
       setBusy(false);
     }
@@ -69,7 +94,9 @@ export default function SignUpPage() {
             <label>First Name</label>
             <input
               value={form.firstName}
-              onChange={(e) => setForm({ ...form, firstName: e.target.value })}
+              onChange={(e) =>
+                setForm({ ...form, firstName: e.target.value })
+              }
               placeholder="Kamo"
               required
             />
@@ -101,25 +128,54 @@ export default function SignUpPage() {
           placeholder="072 000 1111"
         />
 
+        {/* Password with hover tooltip */}
         <label>Password</label>
-        <input
-          type="password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          placeholder="••••••••"
-          required
-        />
+        <div className="tooltip-wrapper">
+          <input
+            type={showPassword ? "text" : "password"}
+            value={form.password}
+            onChange={(e) => setForm({ ...form, password: e.target.value })}
+            placeholder="••••••••"
+            required
+          />
+          <span className="tooltip">
+            Password must be at least 8 characters and include letters and numbers
+          </span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            type="checkbox"
+            id="showPassword"
+            checked={showPassword}
+            onChange={() => setShowPassword(!showPassword)}
+          />
+          <label htmlFor="showPassword">Show Password</label>
+        </div>
 
+        {/* Confirm Password with hover tooltip */}
         <label>Confirm Password</label>
-        <input
-          type="password"
-          value={form.confirm}
-          onChange={(e) => setForm({ ...form, confirm: e.target.value })}
-          placeholder="••••••••"
-          required
-        />
+        <div className="tooltip-wrapper">
+          <input
+            type={showConfirm ? "text" : "password"}
+            value={form.confirm}
+            onChange={(e) => setForm({ ...form, confirm: e.target.value })}
+            placeholder="••••••••"
+            required
+          />
+          <span className="tooltip">Re-enter your password to confirm</span>
+        </div>
+        <div className="checkbox-wrapper">
+          <input
+            type="checkbox"
+            id="showConfirm"
+            checked={showConfirm}
+            onChange={() => setShowConfirm(!showConfirm)}
+          />
+          <label htmlFor="showConfirm">Show Password</label>
+        </div>
 
         {error && <div className="error">{error}</div>}
+        {success && <div className="success">{success}</div>}
 
         <button className="btn btn-primary" disabled={busy}>
           {busy ? "Creating..." : "Create Account"}
@@ -134,3 +190,7 @@ export default function SignUpPage() {
     </div>
   );
 }
+
+
+
+
