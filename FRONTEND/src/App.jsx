@@ -16,7 +16,7 @@ import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import NotFoundPage from "./pages/NotFoundPage";
 
 function App() {
-  // Add state like Code 3
+  
   const [cart, setCart] = useState([]);
   const [wishlist, setWishlist] = useState([]);
   const [notifications, setNotifications] = useState([]);
