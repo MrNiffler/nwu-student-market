@@ -13,6 +13,8 @@ import reviewsRouter from "./routes/reviews.route.js";
 import authRouter from "./routes/auth.js";
 import usersRouter from "./routes/user.js";
 import adminRouter from "./routes/admin.js";
+import wishlistRouter from "./routes/wishlist.route.js"; 
+import cartRouter from "./routes/cart.route.js";         
 
 dotenv.config();
 
@@ -35,6 +37,8 @@ app.use("/api/reviews", reviewsRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/wishlist", wishlistRouter); 
+app.use("/api/cart", cartRouter);
 
 // Root route
 app.get("/", (_req, res) => {
