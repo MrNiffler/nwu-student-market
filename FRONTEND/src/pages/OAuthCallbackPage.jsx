@@ -9,6 +9,24 @@ export default function OAuthCallbackPage() {
   useEffect(() => {
     const handleOAuth = async () => {
       try {
+        // ----------------------------
+        // Dummy login for now
+        // ----------------------------
+        const dummyUser = {
+          id: 1,
+          name: "Dummy NWU User",
+          email: "dummy@student.nwu.ac.za",
+          role: "user",
+        };
+
+        setUser(dummyUser);
+        localStorage.setItem("user", JSON.stringify(dummyUser));
+        navigate("/profile");
+
+        // ----------------------------
+        // Original OAuth code (commented)
+        // ----------------------------
+        /*
         // Extract authorization code from URL
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
@@ -32,13 +50,12 @@ export default function OAuthCallbackPage() {
         const data = await response.json();
 
         if (data.user) {
-          // Set user in auth context
           setUser(data.user);
-          // Redirect to profile/dashboard
           navigate("/profile");
         } else {
           navigate("/signin");
         }
+        */
       } catch (err) {
         console.error("OAuth error:", err);
         navigate("/signin");
