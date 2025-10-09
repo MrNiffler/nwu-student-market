@@ -2,13 +2,12 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import {
   getAllListings,
-  addToCart,
-  addToWishlist,
+  addToCart as apiAddToCart,
+  addToWishlist as apiAddToWishlist,
 } from "../api/endpoints";
 import "../style.css";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
 import ChatBox from "../components/ChatBox";
-
 
 // RatingStars component
 function RatingStars({ listingId, userId, currentRating = 0, addNotification }) {
@@ -79,6 +78,10 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [notifications, setNotifications] = useState([]);
 
+  // ✅ Pull user info from localStorage (instead of hardcoding)
+  const storedUser = JSON.parse(localStorage.getItem("user"));
+  const userId = storedUser?.id || storedUser?._id || null;
+
   const addNotification = (message, type = "success") => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { id, message, type }]);
@@ -88,13 +91,12 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
 
-  // Fetch listings from API
+  // Fetch listings
   const fetchListings = async () => {
     setLoading(true);
     try {
       const res = await getAllListings().then((r) => r.data.data);
 
-      // Fetch reviews safely
       const listingsWithRatings = await Promise.all(
         res.map(async (listing) => {
           try {
@@ -130,7 +132,6 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     fetchListings();
   }, []);
 
-  // Updated search: client-side filtering
   useEffect(() => {
     if (!searchTerm) {
       setFilteredProducts(products);
@@ -142,19 +143,41 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     }
   }, [searchTerm, products]);
 
-  const handleAddToCart = (product) => {
+  // ✅ Add to Cart (uses actual userId)
+  const handleAddToCart = async (product) => {
+    if (!userId) {
+      addNotification("Please log in to add items to your cart", "error");
+      return;
+    }
     if (!cart.find((item) => item.id === product.id)) {
-      addToCart(product).then(() => setCart([...cart, product]));
-      addNotification(`${product.title} added to cart`, "success");
+      try {
+        await apiAddToCart({ userId, listingId: product.id, quantity: 1 });
+        setCart([...cart, product]);
+        addNotification(`${product.title} added to cart`, "success");
+      } catch (err) {
+        console.error("Add to cart error:", err);
+        addNotification("Failed to add to cart", "error");
+      }
     } else {
       addNotification(`${product.title} is already in your cart!`, "error");
     }
   };
 
-  const handleAddToWishlist = (product) => {
+  // ✅ Add to Wishlist (uses actual userId)
+  const handleAddToWishlist = async (product) => {
+    if (!userId) {
+      addNotification("Please log in to add to your wishlist", "error");
+      return;
+    }
     if (!wishlist.find((item) => item.id === product.id)) {
-      addToWishlist(product).then(() => setWishlist([...wishlist, product]));
-      addNotification(`${product.title} added to wishlist`, "success");
+      try {
+        await apiAddToWishlist({ userId, listingId: product.id });
+        setWishlist([...wishlist, product]);
+        addNotification(`${product.title} added to wishlist`, "success");
+      } catch (err) {
+        console.error("Add to wishlist error:", err);
+        addNotification("Failed to add to wishlist", "error");
+      }
     } else {
       addNotification(`${product.title} is already in your wishlist!`, "error");
     }
@@ -166,11 +189,7 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
         <h2>Marketplace</h2>
         <p>Browse all listings below:</p>
 
-        {/* Search Form */}
-        <form
-          onSubmit={(e) => e.preventDefault()}
-          className="search-form"
-        >
+        <form onSubmit={(e) => e.preventDefault()} className="search-form">
           <input
             type="text"
             placeholder="Search listings..."
@@ -189,16 +208,12 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
           ) : (
             filteredProducts.map((product) => (
               <div key={product.id} className="product-card">
-                <img
-                  src={product.image}
-                  alt={product.title}
-                  className="product-image"
-                />
+                <img src={product.image} alt={product.title} className="product-image" />
                 <div className="product-details">
                   <h4>{product.title}</h4>
                   <RatingStars
                     listingId={product.id}
-                    userId={1}
+                    userId={userId}
                     currentRating={product.avgRating || 0}
                     addNotification={addNotification}
                   />
@@ -206,21 +221,14 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
                   <p className="price">R{product.price}</p>
                 </div>
                 <div className="product-actions">
-                  <button
-                    onClick={() => handleAddToCart(product)}
-                    className="btn-primary"
-                  >
+                  <button onClick={() => handleAddToCart(product)} className="btn-primary">
                     Add to Cart
                   </button>
-                  <button
-                    onClick={() => handleAddToWishlist(product)}
-                    className="btn-secondary"
-                  >
+                  <button onClick={() => handleAddToWishlist(product)} className="btn-secondary">
                     Wishlist
                   </button>
                 </div>
-                {/* ChatBox for messaging */}
-                <ChatBox listingId={product.id} user={{ isLoggedIn: true, id: 1 }} />
+                <ChatBox listingId={product.id} user={{ isLoggedIn: !!userId, id: userId }} />
               </div>
             ))
           )}

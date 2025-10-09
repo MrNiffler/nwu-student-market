@@ -1,62 +1,72 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-// Create context
 const AuthContext = createContext();
-
-// Export a custom hook for easier usage
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Example: Load user from localStorage on mount
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser) setCurrentUser(savedUser);
   }, []);
 
-  // Sign in function
+  // Sign in function (backend)
   const signIn = async (email, password) => {
-    // TODO: Replace this with real authentication (Firebase, backend, etc.)
-    // For now, we just accept any email/password
     if (!email || !password) {
       throw new Error("Email and password are required");
     }
 
-    const user = { email }; // minimal user object
-    setCurrentUser(user);
+    // Call backend login endpoint
+    const res = await fetch("http://localhost:5000/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-    // Save to localStorage so page refresh keeps the user logged in
-    localStorage.setItem("user", JSON.stringify(user));
+    if (!res.ok) throw new Error("Login failed");
 
-    return user;
+    const data = await res.json();
+    setCurrentUser(data.user || { email }); // fallback minimal user
+    localStorage.setItem("user", JSON.stringify(data.user || { email }));
+
+    return data.user;
   };
 
-  // Dummy login function for testing while OAuth is not ready
-  const loginDummy = () => {
-    const dummyUser = {
-      id: 1,
-      name: "Jenny Buys",
-      email: "jenny@example.com",
-      role: "admin", // change to "user" to test non-admin
-    };
-    setCurrentUser(dummyUser);
-    localStorage.setItem("user", JSON.stringify(dummyUser));
+  // Sign up function (backend)
+  const signUp = async (full_name, email, password, student_number) => {
+    if (!full_name || !email || !password || !student_number) {
+      throw new Error("All fields are required");
+    }
+
+    const res = await fetch("http://localhost:5000/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ full_name, email, password, student_number }),
+    });
+
+    if (!res.ok) throw new Error("Sign up failed");
+
+    const data = await res.json();
+    setCurrentUser(data.user || { email }); // fallback minimal user
+    localStorage.setItem("user", JSON.stringify(data.user || { email }));
+
+    return data.user;
   };
 
-  // Sign out function
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
   };
 
-  // The context value
-  const value = {
-    currentUser,
-    signIn,
-    signOut,
-    loginDummy, // ✅ added dummy login here
+  // Optional: Dummy login for testing (comment out if needed)
+  const loginDummy = () => {
+    const dummyUser = { id: 1, name: "Dummy User", email: "dummy@student.nwu.ac.za", role: "user" };
+    setCurrentUser(dummyUser);
+    localStorage.setItem("user", JSON.stringify(dummyUser));
   };
+
+  const value = { currentUser, signIn, signUp, signOut, loginDummy };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
