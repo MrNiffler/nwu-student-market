@@ -1,30 +1,38 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import "./SignUpPage.css";
 
 export default function SignUpPage() {
-  // Replace this with the official NWU OAuth URL from IT
-  const NWU_OAUTH_URL = "https://YOUR_NWU_OAUTH_DOMAIN/oauth/authorize";
-  const CLIENT_ID = "YOUR_CLIENT_ID"; // Provided by NWU
-  const REDIRECT_URI = "http://localhost:3000/oauth/callback"; // Make sure this is registered
-  const SCOPE = "openid email profile";
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
 
-  const oauthLink = `${NWU_OAUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-    REDIRECT_URI
-  )}&response_type=code&scope=${encodeURIComponent(SCOPE)}`;
+  const handleDummySignUp = async () => {
+    try {
+      // Dummy login user
+      await signIn("dummy@student.nwu.ac.za", "dummyPassword");
+      navigate("/profile");
+    } catch (err) {
+      console.error(err);
+      alert("Sign up failed");
+    }
+  };
 
   return (
     <div className="center-card slide-up">
       <h1 className="page-title">Create Account</h1>
       <p className="muted">Join the NWU Student Market</p>
 
-      <a href={oauthLink} className="btn btn-primary">
-        Sign up with NWU
-      </a>
+      <button onClick={handleDummySignUp} className="btn btn-primary">
+        Sign up with Dummy User
+      </button>
 
       <div className="spacer" />
       <div className="row">
         <span className="muted">Already have an account?</span>
-        <a href={oauthLink}>Sign in with NWU</a>
+        <button onClick={handleDummySignUp} className="btn btn-link">
+          Sign in with Dummy User
+        </button>
       </div>
     </div>
   );
