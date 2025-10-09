@@ -4,7 +4,7 @@ import axios from "axios";
 // ---------------------------
 // Axios instance
 // ---------------------------
-const API_BASE_URL = "http://localhost:5000"; // Change this to your backend URL
+const API_BASE_URL = "http://localhost:5000/api"; // ✅ Added /api prefix
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
@@ -21,29 +21,19 @@ export const setAuthToken = (token) => {
 // ---------------------------
 // Authentication & Users
 // ---------------------------
-export const registerUser = (userData) =>
-  api.post("/auth/register", userData);
+export const registerUser = (userData) => api.post("/auth/register", userData);
+export const loginUser = (credentials) => api.post("/auth/login", credentials);
+export const resetPassword = (email) => api.post("/auth/reset-password", { email });
 
-export const loginUser = (credentials) =>
-  api.post("/auth/login", credentials);
-
-export const resetPassword = (email) =>
-  api.post("/auth/reset-password", { email });
-
-// Get all users (admin only)
+// Users
 export const getAllUsers = () => api.get("/users");
-
-// Get, update, delete specific user
 export const getUser = (userId) => api.get(`/users/${userId}`);
-export const updateUser = (userId, userData) =>
-  api.patch(`/users/${userId}`, userData);
+export const updateUser = (userId, userData) => api.patch(`/users/${userId}`, userData);
 export const deleteUser = (userId) => api.delete(`/users/${userId}`);
 
 // Admin actions
-export const approveListing = (listingId) =>
-  api.post(`/admin/approve-listing/${listingId}`);
-export const rejectListing = (listingId) =>
-  api.post(`/admin/reject-listing/${listingId}`);
+export const approveListing = (listingId) => api.post(`/admin/approve-listing/${listingId}`);
+export const rejectListing = (listingId) => api.post(`/admin/reject-listing/${listingId}`);
 export const manageUser = (userId, action) =>
   api.post(`/admin/manage-user/${userId}`, { action });
 
@@ -70,21 +60,17 @@ export const deleteListingImage = (listingId, imageId) =>
 // ---------------------------
 export const createTransaction = (transactionData) =>
   api.post("/transactions", transactionData);
-
 export const updateTransactionStatus = (transactionId, status) =>
   api.patch(`/transactions/${transactionId}/status`, { status });
-
 export const getTransaction = (transactionId) =>
   api.get(`/transactions/${transactionId}`);
 
 export const createOrder = (orderData) => api.post("/orders", orderData);
 export const getOrdersByUser = (userId) => api.get(`/orders/${userId}`);
 
-// Optional bookings
-export const createBooking = (bookingData) =>
-  api.post("/bookings", bookingData);
-export const getBookingsByUser = (userId) =>
-  api.get(`/bookings/${userId}`);
+// Bookings
+export const createBooking = (bookingData) => api.post("/bookings", bookingData);
+export const getBookingsByUser = (userId) => api.get(`/bookings/${userId}`);
 
 // ---------------------------
 // Search & Discovery
@@ -117,18 +103,12 @@ export const getConversations = (userId) =>
 // ---------------------------
 // Wishlist (client-side placeholder)
 // ---------------------------
-// Wishlist is not implemented in the backend yet; use state in React for now
-export const addToWishlist = (product) => {
-  return Promise.resolve(product);
-};
-export const removeFromWishlist = (productId) => {
-  return Promise.resolve(productId);
-};
+export const addToWishlist = (product) => Promise.resolve(product);
+export const removeFromWishlist = (productId) => Promise.resolve(productId);
 
 // ---------------------------
 // Cart (client-side placeholder)
 // ---------------------------
-// Cart is also client-side; API integration can be added later if needed
 export const addToCart = (product) => Promise.resolve(product);
 export const removeFromCart = (productId) => Promise.resolve(productId);
 

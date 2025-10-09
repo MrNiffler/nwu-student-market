@@ -1,81 +1,37 @@
+import React from "react";
+import { Link } from "react-router-dom";
 import "./SignInPage.css";
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
 
 export default function SignInPage() {
-  const { signIn } = useAuth();
-  const nav = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
+  // Replace this with the official NWU OAuth URL from IT
+  const NWU_OAUTH_URL = "https://YOUR_NWU_OAUTH_DOMAIN/oauth/authorize";
+  const CLIENT_ID = "YOUR_CLIENT_ID"; // Provided by NWU
+  const REDIRECT_URI = "http://localhost:3000/oauth/callback"; // Make sure this is registered
+  const SCOPE = "openid email profile";
 
-  const onSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setBusy(true);
-
-    try {
-      
-      await new Promise((r) => setTimeout(r, 400));
-
-      // Sign in with your auth context
-      await signIn(form.email, form.password);
-
-      // Redirect to profile or dashboard
-      nav("/profile");
-    } catch (err) {
-      setError(err.message || "Failed to sign in");
-    } finally {
-      setBusy(false);
-    }
-  };
+  const oauthLink = `${NWU_OAUTH_URL}?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+    REDIRECT_URI
+  )}&response_type=code&scope=${encodeURIComponent(SCOPE)}`;
 
   return (
     <div className="center-card slide-up">
       <h1 className="page-title">Welcome Back</h1>
       <p className="muted">Sign in to continue to NWU Student Market</p>
 
-      <form onSubmit={onSubmit} className="form">
-        <label htmlFor="email">Email</label>
-        <input
-          id="email"
-          type="email"
-          value={form.email}
-          onChange={(e) => setForm({ ...form, email: e.target.value })}
-          placeholder="you@nwu.ac.za"
-          required
-        />
-
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={form.password}
-          onChange={(e) => setForm({ ...form, password: e.target.value })}
-          placeholder="••••••••"
-          required
-        />
-
-        {error && <div className="error">{error}</div>}
-
-        <button type="submit" className="btn btn-primary" disabled={busy}>
-          {busy ? "Signing in..." : "Sign In"}
-        </button>
-      </form>
+      <a href={oauthLink} className="btn btn-primary">
+        Sign in with NWU
+      </a>
 
       <div className="spacer" />
-
       <div className="row">
         <span className="muted">No account?</span>
-        <Link to="/signup">Create one</Link>
+        <a href={oauthLink}>Sign up with NWU</a>
       </div>
 
       <div className="row">
         <span className="muted">Forgot your password?</span>
-        <Link to="/forgot-password">Reset it</Link>
+        <Link to="/forgot-password">Reset via NWU</Link>
       </div>
     </div>
   );
-
 }

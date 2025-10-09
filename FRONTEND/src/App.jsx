@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";  // ✅ import your Auth context
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -19,12 +18,6 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
 import CheckoutPage from "./pages/CheckoutPage";
-
-// 🔒 Protected Route wrapper
-const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/signin" replace />;
-};
 
 function App() {
   const [cart, setCart] = useState([
@@ -45,6 +38,13 @@ function App() {
   const [wishlist, setWishlist] = useState([]);
   const [notifications, setNotifications] = useState([]);
 
+  // 🧠 Temporary logged-in user (mock)
+  // Later replace this with your real auth logic
+  const [user] = useState({
+    name: "Jenny Buys",
+    role: "admin", // change to "user" to test protection
+  });
+
   const addNotification = (message, type = "success") => {
     const id = Date.now();
     setNotifications((prev) => [...prev, { id, message, type }]);
@@ -59,7 +59,6 @@ function App() {
       <Navbar cartCount={cart.length} wishlistCount={wishlist.length} />
       <main style={{ minHeight: "80vh" }}>
         <Routes>
-          {/* Public pages */}
           <Route path="/" element={<Home />} />
           <Route
             path="/marketplace"
@@ -96,35 +95,17 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-          {/* Protected pages */}
-          <Route
-            path="/profile"
-            element={
-              <ProtectedRoute>
-                <Profile />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/checkout"
-            element={
-              <ProtectedRoute>
-                <CheckoutPage cart={cart} setCart={setCart} addNotification={addNotification} />
-              </ProtectedRoute>
-            }
+            element={<CheckoutPage cart={cart} />}
           />
-
-          {/* Order flow */}
           <Route path="/success" element={<SuccessPage />} />
           <Route path="/cancel" element={<CancelPage />} />
-
-          {/* Catch all */}
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
 
-      {/* Notifications */}
       <div className="notifications-container">
         {notifications.map((notification) => (
           <Notification
