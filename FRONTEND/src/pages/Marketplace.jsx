@@ -7,6 +7,8 @@ import {
 } from "../api/endpoints";
 import "../style.css";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
+import ChatBox from "../components/ChatBox";
+
 
 // RatingStars component for reviews
 function RatingStars({ listingId, userId, currentRating = 0, addNotification }) {
@@ -194,6 +196,8 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
                     Wishlist
                   </button>
                 </div>
+                {/* ChatBox for messaging */}
+                <ChatBox listingId={product.id} user={{ isLoggedIn: true, id: 1 }} />
               </div>
             ))
           )}

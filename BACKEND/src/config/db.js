@@ -22,3 +22,9 @@ export async function assertDbConnection() {
     throw err;
   }
 }
+
+pool.connect()
+  .then(() => console.log("✅ Database connected successfully"))
+  .catch((err) => {
+    console.error("❌ Database connection error:", err.message);
+  });
