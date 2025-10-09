@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 
 export default function OAuthCallbackPage() {
   const navigate = useNavigate();
-  const { setUser } = useAuth(); // Assuming your AuthContext has setUser
+  const { signIn } = useAuth(); // use signIn from AuthContext
 
   useEffect(() => {
     const handleOAuth = async () => {
@@ -13,13 +13,13 @@ export default function OAuthCallbackPage() {
         // Dummy login for now
         // ----------------------------
         const dummyUser = {
-          id: 1,
-          name: "Dummy NWU User",
           email: "dummy@student.nwu.ac.za",
+          name: "Dummy NWU User",
           role: "user",
         };
 
-        setUser(dummyUser);
+        // Use signIn to keep AuthContext consistent
+        await signIn(dummyUser.email, "dummyPassword"); // password is dummy
         localStorage.setItem("user", JSON.stringify(dummyUser));
         navigate("/profile");
 
@@ -27,20 +27,17 @@ export default function OAuthCallbackPage() {
         // Original OAuth code (commented)
         // ----------------------------
         /*
-        // Extract authorization code from URL
         const params = new URLSearchParams(window.location.search);
         const code = params.get("code");
 
         if (!code) {
-          // No code found, redirect to sign in
           navigate("/signin");
           return;
         }
 
-        // Exchange code for access token/user info via backend
         const response = await fetch(`/api/oauth/nwu/callback?code=${code}`, {
           method: "GET",
-          credentials: "include", // if cookies/session are used
+          credentials: "include",
         });
 
         if (!response.ok) {
@@ -50,7 +47,7 @@ export default function OAuthCallbackPage() {
         const data = await response.json();
 
         if (data.user) {
-          setUser(data.user);
+          signIn(data.user.email, "dummy"); // placeholder for real login
           navigate("/profile");
         } else {
           navigate("/signin");
@@ -63,7 +60,7 @@ export default function OAuthCallbackPage() {
     };
 
     handleOAuth();
-  }, [navigate, setUser]); // ✅ include navigate and setUser in deps
+  }, [navigate, signIn]);
 
   return (
     <div style={{ textAlign: "center", padding: "2rem" }}>

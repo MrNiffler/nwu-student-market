@@ -1,10 +1,30 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaShoppingCart } from "react-icons/fa";
+import { getUserCart } from "../api/endpoints";
 
 function CheckoutPage({ cart, setCart, addNotification }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+
+  // ✅ Get logged-in user
+  const user = JSON.parse(localStorage.getItem("user"));
+  const userId = user?.id;
+
+  // Fetch user's cart on mount
+  useEffect(() => {
+    const fetchCart = async () => {
+      if (!userId) return;
+      try {
+        const res = await getUserCart(userId);
+        setCart(res.data.data || []);
+      } catch (err) {
+        console.error("Error fetching cart:", err);
+        addNotification("Failed to load cart", "error");
+      }
+    };
+    fetchCart();
+  }, [userId]);
 
   const totalAmount = cart.reduce((sum, item) => sum + item.price, 0);
 
@@ -17,24 +37,23 @@ function CheckoutPage({ cart, setCart, addNotification }) {
     setLoading(true);
 
     try {
-      // Replace with your backend orders endpoint
       const res = await fetch("http://localhost:5000/api/orders", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ items: cart }),
+        body: JSON.stringify({ userId, items: cart }),
       });
 
       if (!res.ok) throw new Error("Failed to place order");
 
       const data = await res.json();
 
-      setCart([]); // Clear cart after successful order
+      setCart([]); // Clear cart
       addNotification("Order placed successfully! 🎉", "success");
-      navigate("/success"); // Redirect to success page
+      navigate("/success");
     } catch (err) {
       console.error("Order error:", err);
       addNotification("Order failed. Please try again.", "error");
-      navigate("/cancel"); // Redirect to cancel page
+      navigate("/cancel");
     } finally {
       setLoading(false);
     }
@@ -81,7 +100,11 @@ function CheckoutPage({ cart, setCart, addNotification }) {
         {loading ? "Placing Order..." : "Place Order"}
       </button>
 
-      <Link to="/marketplace" className="btn-secondary" style={{ marginTop: "1rem", display: "inline-block" }}>
+      <Link
+        to="/marketplace"
+        className="btn-secondary"
+        style={{ marginTop: "1rem", display: "inline-block" }}
+      >
         Continue Shopping
       </Link>
     </div>

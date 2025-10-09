@@ -101,15 +101,19 @@ export const getConversations = (userId) =>
   api.get(`/conversations/${userId}`);
 
 // ---------------------------
-// Wishlist (client-side placeholder)
+// Wishlist
 // ---------------------------
-export const addToWishlist = (product) => Promise.resolve(product);
-export const removeFromWishlist = (productId) => Promise.resolve(productId);
+export const addToWishlist = ({ userId, listingId }) =>
+  api.post("/wishlist", { userId, listingId });
+export const removeFromWishlist = (listingId) => api.delete(`/wishlist/${listingId}`);
+export const getUserWishlist = (userId) => api.get(`/wishlist/${userId}`);
 
 // ---------------------------
-// Cart (client-side placeholder)
+// Cart
 // ---------------------------
-export const addToCart = (product) => Promise.resolve(product);
-export const removeFromCart = (productId) => Promise.resolve(productId);
+export const addToCart = ({ userId, listingId, quantity = 1 }) =>
+  api.post("/cart", { userId, listingId, quantity });
+export const removeFromCart = (listingId) => api.delete(`/cart/${listingId}`);
+export const getUserCart = (userId) => api.get(`/cart/${userId}`);
 
 export default api;
