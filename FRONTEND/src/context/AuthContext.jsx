@@ -32,6 +32,18 @@ export const AuthProvider = ({ children }) => {
     return user;
   };
 
+  // Dummy login function for testing while OAuth is not ready
+  const loginDummy = () => {
+    const dummyUser = {
+      id: 1,
+      name: "Jenny Buys",
+      email: "jenny@example.com",
+      role: "admin", // change to "user" to test non-admin
+    };
+    setCurrentUser(dummyUser);
+    localStorage.setItem("user", JSON.stringify(dummyUser));
+  };
+
   // Sign out function
   const signOut = () => {
     setCurrentUser(null);
@@ -43,6 +55,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     signIn,
     signOut,
+    loginDummy, // ✅ added dummy login here
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
