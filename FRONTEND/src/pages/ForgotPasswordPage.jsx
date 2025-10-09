@@ -13,17 +13,24 @@ function ForgotPassword() {
     setMessage("");
     setError("");
 
-    if (!email) return setError("Please enter your email.");
+    if (!email) {
+      return setError("Please enter your email.");
+    }
+
+    // --- NWU email validation ---
+    if (!email.endsWith("@mynwu.ac.za")) {
+      return setError("Please use your NWU email address (studentnumber@mynwu.ac.za).");
+    }
 
     try {
       await sendPasswordReset(email);
-      setMessage("Password reset link sent to your email!");
+      setMessage("Password reset link sent to your NWU email!");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Failed to send reset link");
     }
   };
 
-  // extra animattion just to make it cooler
+  // Extra animation to make it cooler
   const oopsText = "Oops!".split("");
 
   return (
@@ -41,9 +48,10 @@ function ForgotPassword() {
           <input
             type="email"
             name="email"
-            placeholder="Enter your email"
+            placeholder="studentnumber@mynwu.ac.za"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <button type="submit">Send Reset Link</button>
         </form>
