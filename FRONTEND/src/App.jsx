@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext";  // ✅ import your Auth context
+import { useAuth } from "./context/AuthContext"; // ✅ import your Auth context
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -19,11 +19,12 @@ import NotFoundPage from "./pages/NotFoundPage";
 import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
 import CheckoutPage from "./pages/CheckoutPage";
+import OAuthCallbackPage from "./pages/OAuthCallbackPage"; // ✅ NWU OAuth callback page
 
 // 🔒 Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/signin" replace />;
+  const { user } = useAuth(); // updated to use "user" from AuthContext
+  return user ? children : <Navigate to="/signin" replace />;
 };
 
 function App() {
@@ -96,6 +97,9 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+
+          {/* NWU OAuth callback */}
+          <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
           {/* Protected pages */}
           <Route
