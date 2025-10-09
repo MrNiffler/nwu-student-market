@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import ReportedListings from "./ReportedListings";
 import UserManagement from "./UserManagement";
 import ModerationLogs from "./ModerationLogs";
+import AnalyticsPage from "./AnalyticsPage"; // ✅ Import the analytics component
 
 function AdminDashboard() {
   const [activeTab, setActiveTab] = useState("reports");
@@ -12,7 +13,7 @@ function AdminDashboard() {
       <h1 className="text-2xl font-bold mb-6">Admin Dashboard</h1>
 
       {/* Tabs */}
-      <div className="flex gap-4 mb-4">
+      <div className="flex flex-wrap gap-4 mb-4">
         <button
           onClick={() => setActiveTab("reports")}
           className={`px-4 py-2 rounded ${
@@ -37,6 +38,14 @@ function AdminDashboard() {
         >
           Moderation Logs
         </button>
+        <button
+          onClick={() => setActiveTab("analytics")}
+          className={`px-4 py-2 rounded ${
+            activeTab === "analytics" ? "bg-blue-600 text-white" : "bg-gray-200"
+          }`}
+        >
+          Analytics
+        </button>
       </div>
 
       {/* Render the selected tab */}
@@ -44,6 +53,7 @@ function AdminDashboard() {
         {activeTab === "reports" && <ReportedListings />}
         {activeTab === "users" && <UserManagement />}
         {activeTab === "logs" && <ModerationLogs />}
+        {activeTab === "analytics" && <AnalyticsPage />} {/* ✅ Added */}
       </div>
     </div>
   );

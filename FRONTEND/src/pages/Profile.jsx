@@ -1,189 +1,85 @@
-import React, { useState, useEffect } from "react";
+// src/pages/Profile.jsx
+import React from "react";
+import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
-import studentPhoto from "../assets/student-photo.jpg"; // Placeholder photo
-import { FaShoppingCart, FaHeart, FaEdit, FaTrash, FaSave, FaTimes } from "react-icons/fa";
-import axios from "axios";
 
-function Profile({ cart, wishlist, user }) {
-  const studentInfo = {
-    name: "Thabo Mokoena",
-    role: "Founder & CEO of ThaboTech Solutions",
-    businessName: "ThaboTech Solutions",
-    about: "ThaboTech Solutions is a student-run tech startup focused on providing affordable web development and digital marketing services to small businesses in Gauteng. Founded in 2024, the company has helped over 30 local entrepreneurs establish their online presence.",
-    services: [
-      "Website Design & Development",
-      "Social Media Management",
-      "SEO Optimization",
-      "Graphic Design",
-    ],
-    email: "thabo@thabotech.co.za",
-    website: "https://www.thabotech.co.za",
-  };
+export default function Profile({ cart, wishlist }) {
+  const { currentUser, signOut } = useAuth();
 
-  const [userListings, setUserListings] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editingListing, setEditingListing] = useState(null);
-  const [editForm, setEditForm] = useState({ title: "", price: "", description: "" });
+  if (!currentUser) {
+    return <p className="text-center mt-10">Loading profile...</p>;
+  }
 
-  useEffect(() => {
-    const fetchUserListings = async () => {
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-        const res = await axios.get("http://localhost:5000/api/listings", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const myListings = res.data.filter((listing) => listing.userId === user.id);
-        setUserListings(myListings);
-        setLoading(false);
-      } catch (err) {
-        console.error("Failed to fetch user listings:", err);
-        setLoading(false);
-      }
-    };
-    if (user?.id) fetchUserListings();
-  }, [user]);
-
-  const handleDeleteListing = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      await axios.delete(`http://localhost:5000/api/listings/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setUserListings(userListings.filter((listing) => listing.id !== id));
-      alert("Listing deleted successfully.");
-    } catch (err) {
-      console.error("Failed to delete listing:", err);
-      alert("Failed to delete listing.");
-    }
-  };
-
-  const handleEditClick = (listing) => {
-    setEditingListing(listing.id);
-    setEditForm({
-      title: listing.title,
-      price: listing.price,
-      description: listing.description || "",
-    });
-  };
-
-  const handleEditChange = (e) => {
-    const { name, value } = e.target;
-    setEditForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleEditSave = async (id) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.patch(
-        `http://localhost:5000/api/listings/${id}`,
-        editForm,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setUserListings(userListings.map((listing) =>
-        listing.id === id ? res.data : listing
-      ));
-      setEditingListing(null);
-      alert("Listing updated successfully.");
-    } catch (err) {
-      console.error("Failed to update listing:", err);
-      alert("Failed to update listing.");
-    }
-  };
-
-  const handleEditCancel = () => setEditingListing(null);
+  const { full_name, email, role } = currentUser;
 
   return (
-    <div className="page-container">
-      {/* Hero Section */}
-      <section className="hero" style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "1rem", padding: "3rem 1rem" }}>
-        <img src={studentPhoto} alt="Student" style={{ width: "120px", borderRadius: "50%" }} />
-        <h2 style={{ fontFamily: "Poppins, sans-serif", color: "#6C63FF" }}>{studentInfo.name}</h2>
-        <p style={{ color: "#1F2937", fontWeight: "500" }}>{studentInfo.role}</p>
-      </section>
+    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded">
+      <h2 className="text-2xl font-bold mb-2">Welcome, {full_name} 👋</h2>
+      <p className="text-gray-600 mb-4">
+        <strong>Email:</strong> {email} <br />
+        <strong>Role:</strong> {role}
+      </p>
 
-      {/* Business Info */}
-      <section style={{ backgroundColor: "#EDE9FE", padding: "2rem", borderRadius: "10px", marginBottom: "2rem" }}>
-        <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#6C63FF" }}>About the Business</h3>
-        <p style={{ color: "#1F2937" }}>{studentInfo.about}</p>
-        <h3 style={{ fontFamily: "Poppins, sans-serif", color: "#6C63FF", marginTop: "1.5rem" }}>Services Offered</h3>
-        <ul>
-          {studentInfo.services.map((service, index) => (
-            <li key={index} style={{ color: "#1F2937", marginBottom: "0.5rem" }}>{service}</li>
-          ))}
-        </ul>
-      </section>
+      {/* --- ROLE SPECIFIC SECTIONS --- */}
+      {role === "admin" && (
+        <div>
+          <h3 className="text-xl font-semibold mb-2 text-blue-700">Admin Dashboard</h3>
+          <p className="text-gray-700 mb-3">
+            You have full control over all listings, analytics, and user management.
+          </p>
+          <Link
+            to="/admin"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+          >
+            Go to Admin Dashboard
+          </Link>
+        </div>
+      )}
 
-      {/* Contact Info */}
-      <section style={{ textAlign: "center", marginBottom: "2rem" }}>
-        <p>📧 Email: <a href={`mailto:${studentInfo.email}`}>{studentInfo.email}</a></p>
-        <p>🌐 Website: <a href={studentInfo.website} target="_blank" rel="noopener noreferrer">{studentInfo.website}</a></p>
-      </section>
+      {role === "buyer" && (
+        <div>
+          <h3 className="text-xl font-semibold mb-2 text-green-700">Buyer Profile</h3>
+          <p className="text-gray-700 mb-3">
+            You can manage your wishlist, view cart items, and check out securely.
+          </p>
 
-      {/* Cart & Wishlist Summary */}
-      <section className="summary" style={{ marginBottom: "2rem" }}>
-        <h3>Quick Links</h3>
-        <ul>
-          <li><Link to="/cart" className="btn-primary">Go to Cart ({cart?.length || 0})</Link></li>
-          <li style={{ marginTop: "0.5rem" }}><Link to="/wishlist" className="btn-primary">Go to Wishlist ({wishlist?.length || 0})</Link></li>
-        </ul>
-      </section>
+          <div className="flex space-x-3">
+            <Link to="/cart" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
+              View Cart ({cart.length})
+            </Link>
+            <Link
+              to="/wishlist"
+              className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded"
+            >
+              Wishlist ({wishlist.length})
+            </Link>
+          </div>
+        </div>
+      )}
 
-      {/* User Listings */}
-      <section className="user-listings">
-        <h3>Your Listings</h3>
-        {loading ? <p>Loading listings...</p> :
-          userListings.length === 0 ? <p>You have no listings yet.</p> :
-            <div className="products-grid">
-              {userListings.map((listing) => (
-                <div key={listing.id} className="product-card">
-                  {editingListing === listing.id ? (
-                    <div className="edit-form">
-                      <input
-                        type="text"
-                        name="title"
-                        value={editForm.title}
-                        onChange={handleEditChange}
-                        placeholder="Title"
-                      />
-                      <input
-                        type="number"
-                        name="price"
-                        value={editForm.price}
-                        onChange={handleEditChange}
-                        placeholder="Price"
-                      />
-                      <textarea
-                        name="description"
-                        value={editForm.description}
-                        onChange={handleEditChange}
-                        placeholder="Description"
-                      />
-                      <div className="product-actions">
-                        <button className="btn-primary" onClick={() => handleEditSave(listing.id)}><FaSave /> Save</button>
-                        <button className="btn-secondary" onClick={handleEditCancel}><FaTimes /> Cancel</button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="product-details">
-                        <h4>{listing.title}</h4>
-                        <p className="price">R{listing.price}</p>
-                        <p>Status: {listing.status || "Active"}</p>
-                      </div>
-                      <div className="product-actions">
-                        <button className="btn-secondary" onClick={() => handleEditClick(listing)}><FaEdit /> Edit</button>
-                        <button className="btn-danger" onClick={() => handleDeleteListing(listing.id)}><FaTrash /> Delete</button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-        }
-      </section>
+      {role === "seller" && (
+        <div>
+          <h3 className="text-xl font-semibold mb-2 text-orange-700">Seller Dashboard</h3>
+          <p className="text-gray-700 mb-3">
+            You can manage your listings and view buyer activity.
+          </p>
+          <Link
+            to="/marketplace"
+            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded"
+          >
+            Manage Listings
+          </Link>
+        </div>
+      )}
+
+      <hr className="my-6" />
+
+      <button
+        onClick={signOut}
+        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded"
+      >
+        Sign Out
+      </button>
     </div>
   );
 }
-
-export default Profile;

@@ -1,10 +1,9 @@
-// src/api/endpoints.js
 import axios from "axios";
 
 // ---------------------------
 // Axios instance
 // ---------------------------
-const API_BASE_URL = "http://localhost:5000/api"; // ✅ Added /api prefix
+const API_BASE_URL = "http://localhost:5000/api";
 const api = axios.create({
   baseURL: API_BASE_URL,
 });
@@ -103,16 +102,16 @@ export const getConversations = (userId) =>
 // ---------------------------
 // Wishlist
 // ---------------------------
-export const addToWishlist = ({ userId, listingId }) =>
-  api.post("/wishlist", { userId, listingId });
+export const addToWishlist = ({ user_id, listing_id }) =>
+  api.post("/wishlist", { user_id, listing_id });
 export const removeFromWishlist = (listingId) => api.delete(`/wishlist/${listingId}`);
 export const getUserWishlist = (userId) => api.get(`/wishlist/${userId}`);
 
 // ---------------------------
 // Cart
 // ---------------------------
-export const addToCart = ({ userId, listingId, quantity = 1 }) =>
-  api.post("/cart", { userId, listingId, quantity });
+export const addToCart = ({ user_id, listing_id, quantity = 1 }) =>
+  api.post("/cart", { user_id, listing_id, quantity });
 export const removeFromCart = (listingId) => api.delete(`/cart/${listingId}`);
 export const getUserCart = (userId) => api.get(`/cart/${userId}`);
 

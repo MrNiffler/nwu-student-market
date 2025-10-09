@@ -78,7 +78,7 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [notifications, setNotifications] = useState([]);
 
-  // ✅ Pull user info from localStorage (instead of hardcoding)
+  // Get user from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?.id || storedUser?._id || null;
 
@@ -95,36 +95,55 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   const fetchListings = async () => {
     setLoading(true);
     try {
-      const res = await getAllListings().then((r) => r.data.data);
+      const res = await getAllListings();
+      const listings = res.data?.data || [];
 
-      const listingsWithRatings = await Promise.all(
-        res.map(async (listing) => {
+      const listingsWithExtras = await Promise.all(
+        listings.map(async (listing) => {
+          // Fetch images
+          let images = [];
+          try {
+            const imgRes = await fetch(
+              `http://localhost:5000/api/listings/${listing.id}/images`
+            );
+            if (imgRes.ok) {
+              const imgData = await imgRes.json();
+              images = imgData.data || [];
+            }
+          } catch (err) {
+            console.error(`Failed to fetch images for listing ${listing.id}`, err);
+          }
+
+          // Fetch ratings
+          let avgRating = 0;
           try {
             const ratingRes = await fetch(
-              `http://localhost:5000/api/reviews/users/${listing.id}`
+              `http://localhost:5000/api/reviews/listing/${listing.id}`
             );
-            if (!ratingRes.ok) throw new Error("No reviews available");
-            const ratingData = await ratingRes.json();
-            const avgRating =
-              Array.isArray(ratingData) && ratingData.length > 0
-                ? ratingData.reduce((sum, r) => sum + (r.rating || 0), 0) /
-                  ratingData.length
-                : 0;
-            return { ...listing, avgRating };
-          } catch {
-            return { ...listing, avgRating: 0 };
+            if (ratingRes.ok) {
+              const ratingData = await ratingRes.json();
+              if (Array.isArray(ratingData.data) && ratingData.data.length > 0) {
+                avgRating =
+                  ratingData.data.reduce((sum, r) => sum + (r.rating || 0), 0) /
+                  ratingData.data.length;
+              }
+            }
+          } catch (err) {
+            console.error(`Failed to fetch ratings for listing ${listing.id}`, err);
           }
+
+          return { ...listing, images, avgRating };
         })
       );
 
-      setProducts(listingsWithRatings);
-      setFilteredProducts(listingsWithRatings);
+      setProducts(listingsWithExtras);
+      setFilteredProducts(listingsWithExtras);
       setLoading(false);
-      addNotification("Products loaded successfully!", "success");
+      addNotification("Listings loaded successfully!", "success");
     } catch (err) {
       console.error("Error fetching listings:", err);
       setLoading(false);
-      addNotification("Failed to load products!", "error");
+      addNotification("Failed to load listings!", "error");
     }
   };
 
@@ -143,7 +162,7 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     }
   }, [searchTerm, products]);
 
-  // ✅ Add to Cart (uses actual userId)
+  // Add to Cart
   const handleAddToCart = async (product) => {
     if (!userId) {
       addNotification("Please log in to add items to your cart", "error");
@@ -151,11 +170,11 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     }
     if (!cart.find((item) => item.id === product.id)) {
       try {
-        await apiAddToCart({ userId, listingId: product.id, quantity: 1 });
+        await apiAddToCart({ user_id: userId, listing_id: product.id, quantity: 1 });
         setCart([...cart, product]);
         addNotification(`${product.title} added to cart`, "success");
       } catch (err) {
-        console.error("Add to cart error:", err);
+        console.error("Add to cart error:", err.response?.data || err);
         addNotification("Failed to add to cart", "error");
       }
     } else {
@@ -163,7 +182,7 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     }
   };
 
-  // ✅ Add to Wishlist (uses actual userId)
+  // Add to Wishlist
   const handleAddToWishlist = async (product) => {
     if (!userId) {
       addNotification("Please log in to add to your wishlist", "error");
@@ -171,11 +190,11 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
     }
     if (!wishlist.find((item) => item.id === product.id)) {
       try {
-        await apiAddToWishlist({ userId, listingId: product.id });
+        await apiAddToWishlist({ user_id: userId, listing_id: product.id });
         setWishlist([...wishlist, product]);
         addNotification(`${product.title} added to wishlist`, "success");
       } catch (err) {
-        console.error("Add to wishlist error:", err);
+        console.error("Add to wishlist error:", err.response?.data || err);
         addNotification("Failed to add to wishlist", "error");
       }
     } else {
@@ -208,7 +227,11 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
           ) : (
             filteredProducts.map((product) => (
               <div key={product.id} className="product-card">
-                <img src={product.image} alt={product.title} className="product-image" />
+                <img
+                  src={product.images?.[0]?.full_url || "/placeholder.png"}
+                  alt={product.title}
+                  className="product-image"
+                />
                 <div className="product-details">
                   <h4>{product.title}</h4>
                   <RatingStars

@@ -7,17 +7,15 @@ function Cart({ cart, setCart, addNotification }) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
 
-  // ✅ Get logged-in user
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
 
-  // Fetch user's cart on mount
   useEffect(() => {
     const fetchCart = async () => {
       if (!userId) return;
       try {
         const res = await getUserCart(userId);
-        setCart(res.data.data || []);
+        setCart(res.data.data || []); // live items only
       } catch (err) {
         console.error("Error fetching cart:", err);
         addNotification("Failed to load cart", "error");
@@ -31,7 +29,7 @@ function Cart({ cart, setCart, addNotification }) {
   const handleRemove = async (id) => {
     try {
       await removeFromCart(id);
-      setCart(cart.filter((item) => item.id !== id));
+      setCart((prev) => prev.filter((item) => item.id !== id));
       addNotification("Item removed from cart 🛒", "success");
     } catch (err) {
       console.error("Remove cart item error:", err);
@@ -39,9 +37,7 @@ function Cart({ cart, setCart, addNotification }) {
     }
   };
 
-  const handleCheckout = () => {
-    navigate("/checkout");
-  };
+  const handleCheckout = () => navigate("/checkout");
 
   if (loading) return <p>Loading cart...</p>;
 
@@ -49,7 +45,7 @@ function Cart({ cart, setCart, addNotification }) {
     return (
       <div className="page-container">
         <h2>
-          <FaShoppingCart /> Your cart is empty 😢
+          Your cart is empty
         </h2>
         <Link to="/marketplace" className="btn-primary">
           Browse Marketplace
