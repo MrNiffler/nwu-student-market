@@ -20,8 +20,9 @@ import SuccessPage from "./pages/SuccessPage";
 import CancelPage from "./pages/CancelPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
+import CreateListing from "./pages/CreateListing";
+import Dashboard from "./components/Dashboard"; // ✅ User Dashboard
 
-// 🔒 Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
   return currentUser ? children : <Navigate to="/signin" replace />;
@@ -106,6 +107,26 @@ function App() {
             element={
               <ProtectedRoute>
                 <Wishlist wishlist={wishlist} setWishlist={setWishlist} addNotification={addNotification} />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ Create Listing Page */}
+          <Route
+            path="/create-listing"
+            element={
+              <ProtectedRoute>
+                <CreateListing />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ✅ User Dashboard */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
               </ProtectedRoute>
             }
           />

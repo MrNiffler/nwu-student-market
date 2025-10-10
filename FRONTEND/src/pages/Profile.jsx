@@ -1,76 +1,170 @@
-// src/pages/Profile.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { getUser, updateUser } from "../api/api.js";
 
-export default function Profile({ cart, wishlist }) {
+const demoProfiles = {
+  "admin@nwu.ac.za": {
+    full_name: "Demo Admin",
+    email: "admin@nwu.ac.za",
+    role: "admin",
+  },
+  "buyer@nwu.ac.za": {
+    full_name: "Demo Buyer",
+    email: "buyer@nwu.ac.za",
+    role: "buyer",
+  },
+  "seller@nwu.ac.za": {
+    full_name: "Demo Seller",
+    email: "seller@nwu.ac.za",
+    role: "seller",
+  },
+};
+
+export default function Profile() {
   const { currentUser, signOut } = useAuth();
+  const [profile, setProfile] = useState({
+    full_name: "",
+    email: "",
+    role: "",
+  });
+  const [loading, setLoading] = useState(true);
+  const [editing, setEditing] = useState(false);
+  const [message, setMessage] = useState("");
 
-  if (!currentUser) {
-    return <p className="text-center mt-10">Loading profile...</p>;
-  }
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!currentUser) return;
+      try {
+        const res = await getUser(); // backend endpoint
+        setProfile(res);
+      } catch (err) {
+        console.error(err);
+        // Use demo profile fallback
+        const demo = demoProfiles[currentUser?.email] || {
+          full_name: "Demo User",
+          email: currentUser?.email || "demo@nwu.ac.za",
+          role: "buyer",
+        };
+        setProfile(demo);
+        setMessage("Backend unavailable, using demo profile");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, [currentUser]);
 
-  const { full_name, email, role } = currentUser;
+  const handleChange = (e) => {
+    setProfile({ ...profile, [e.target.name]: e.target.value });
+  };
+
+  const handleSave = async () => {
+    setMessage("");
+    try {
+      await updateUser({
+        full_name: profile.full_name,
+        email: profile.email,
+      });
+      setMessage("Profile updated successfully!");
+      setEditing(false);
+    } catch (err) {
+      console.error(err);
+      setMessage(err.response?.data?.message || "Failed to update profile");
+    }
+  };
+
+  if (loading) return <p className="text-center mt-10">Loading profile...</p>;
+
+  const roleColors = {
+    admin: "bg-red-500",
+    buyer: "bg-blue-500",
+    seller: "bg-green-500",
+  };
 
   return (
-    <div className="max-w-4xl mx-auto mt-10 p-6 bg-white shadow rounded">
-      <h2 className="text-2xl font-bold mb-2">Welcome, {full_name} 👋</h2>
-      <p className="text-gray-600 mb-4">
-        <strong>Email:</strong> {email} <br />
-        <strong>Role:</strong> {role}
-      </p>
+    <div className="max-w-3xl mx-auto mt-10 p-6 bg-white shadow-lg rounded-lg">
+      {message && (
+        <p
+          className={`mb-4 p-2 rounded text-center ${
+            message.includes("demo")
+              ? "bg-yellow-100 text-yellow-800"
+              : "bg-green-100 text-green-700"
+          }`}
+        >
+          {message}
+        </p>
+      )}
 
-      {/* --- ROLE SPECIFIC SECTIONS --- */}
-      {role === "admin" && (
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold">
+          Welcome, {profile.full_name} 👋
+        </h2>
+        <span
+          className={`px-3 py-1 rounded-full text-white ${
+            roleColors[profile.role] || "bg-gray-500"
+          }`}
+        >
+          {profile.role.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="space-y-4">
         <div>
-          <h3 className="text-xl font-semibold mb-2 text-blue-700">Admin Dashboard</h3>
-          <p className="text-gray-700 mb-3">
-            You have full control over all listings, analytics, and user management.
-          </p>
-          <Link
-            to="/admin"
+          <label className="block font-semibold mb-1">Full Name</label>
+          {editing ? (
+            <input
+              type="text"
+              name="full_name"
+              value={profile.full_name}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          ) : (
+            <p className="text-gray-700">{profile.full_name}</p>
+          )}
+        </div>
+
+        <div>
+          <label className="block font-semibold mb-1">Email</label>
+          {editing ? (
+            <input
+              type="email"
+              name="email"
+              value={profile.email}
+              onChange={handleChange}
+              className="w-full border rounded px-3 py-2"
+            />
+          ) : (
+            <p className="text-gray-700">{profile.email}</p>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-6 flex gap-2">
+        {editing ? (
+          <>
+            <button
+              onClick={handleSave}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
+            >
+              Save
+            </button>
+            <button
+              onClick={() => setEditing(false)}
+              className="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded"
+            >
+              Cancel
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => setEditing(true)}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
           >
-            Go to Admin Dashboard
-          </Link>
-        </div>
-      )}
-
-      {role === "buyer" && (
-        <div>
-          <h3 className="text-xl font-semibold mb-2 text-green-700">Buyer Profile</h3>
-          <p className="text-gray-700 mb-3">
-            You can manage your wishlist, view cart items, and check out securely.
-          </p>
-
-          <div className="flex space-x-3">
-            <Link to="/cart" className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">
-              View Cart ({cart.length})
-            </Link>
-            <Link
-              to="/wishlist"
-              className="bg-pink-600 hover:bg-pink-700 text-white px-4 py-2 rounded"
-            >
-              Wishlist ({wishlist.length})
-            </Link>
-          </div>
-        </div>
-      )}
-
-      {role === "seller" && (
-        <div>
-          <h3 className="text-xl font-semibold mb-2 text-orange-700">Seller Dashboard</h3>
-          <p className="text-gray-700 mb-3">
-            You can manage your listings and view buyer activity.
-          </p>
-          <Link
-            to="/marketplace"
-            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded"
-          >
-            Manage Listings
-          </Link>
-        </div>
-      )}
+            Edit Profile
+          </button>
+        )}
+      </div>
 
       <hr className="my-6" />
 
