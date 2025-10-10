@@ -1,30 +1,42 @@
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Generic fetch wrapper
-async function fetchAPI(endpoint, options = {}) {
+export async function fetchAPI(endpoint, options = {}) {
+  // Get token from localStorage (saved on login)
+  const token = localStorage.getItem("token");
+
   const res = await fetch(`${API_URL}/${endpoint}`, {
     headers: {
       "Content-Type": "application/json",
       ...(options.headers || {}),
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
     ...options,
   });
 
   if (!res.ok) {
-    const error = await res.text();
-    throw new Error(error || "API request failed");
+    const errorText = await res.text();
+    throw new Error(errorText || "API request failed");
   }
 
   return res.json();
 }
 
-// ===== Listings =====
-export async function getListings() {
-  return fetchAPI("listings");
+// Users
+export async function getUser() {
+  return fetchAPI("users/me");
 }
 
-export async function getListingById(id) {
-  return fetchAPI(`listings/${id}`);
+export async function updateUser(data) {
+  return fetchAPI("users/me", {
+    method: "PATCH",
+    body: JSON.stringify(data),
+  });
+}
+
+// Listings (example)
+export async function getListings() {
+  return fetchAPI("listings");
 }
 
 export async function createListing(data) {
@@ -32,22 +44,4 @@ export async function createListing(data) {
     method: "POST",
     body: JSON.stringify(data),
   });
-}
-
-export async function updateListing(id, data) {
-  return fetchAPI(`listings/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(data),
-  });
-}
-
-export async function deleteListing(id) {
-  return fetchAPI(`listings/${id}`, {
-    method: "DELETE",
-  });
-}
-
-// ===== Users (if needed) =====
-export async function getUsers() {
-  return fetchAPI("users");
 }

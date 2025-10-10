@@ -1,14 +1,16 @@
-// src/pages/SignInPage.jsx
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import "./SignUpPage.css"; // reuse same styling for consistent card
 
 export default function SignInPage() {
+  const navigate = useNavigate();
+  const { signIn } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
-  const { signIn } = useAuth();
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -17,10 +19,11 @@ export default function SignInPage() {
     try {
       const user = await signIn(email, password);
 
+      // Redirect based on role
       if (user?.role === "admin") {
         navigate("/admin");
       } else {
-        navigate("/profile");
+        navigate("/dashboard"); // Regular user dashboard
       }
     } catch (err) {
       console.error("Login failed:", err);
@@ -29,58 +32,61 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-50">
-      <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+    <div className="center-card slide-up">
+      <h1 className="page-title text-center">Sign In</h1>
+      <p className="muted text-center mb-4">Welcome back to NWU Student Market</p>
 
-        {error && (
-          <div className="bg-red-100 text-red-700 p-2 mb-4 rounded text-center">
-            {error}
-          </div>
-        )}
+      {error && <p className="text-red-600 text-sm mb-2 text-center">{error}</p>}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-medium">Email</label>
-            <input
-              type="email"
-              className="w-full border rounded p-2"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Enter your NWU email"
-            />
-          </div>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <input
+          type="email"
+          placeholder="Enter your NWU email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
 
-          <div>
-            <label className="block font-medium">Password</label>
-            <input
-              type="password"
-              className="w-full border rounded p-2"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Enter your password"
-            />
-          </div>
-
+        <div className="relative">
+          <input
+            type={showPassword ? "text" : "password"}
+            placeholder="Enter your password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           <button
-            type="submit"
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white p-2 rounded font-semibold"
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"
           >
-            Sign In
+            {showPassword ? "Hide" : "Show"}
           </button>
-        </form>
+        </div>
 
-        <p className="text-center mt-4 text-sm text-gray-600">
-          Use one of these demo accounts:
-        </p>
-        <ul className="text-center text-xs text-gray-500 mt-1">
-          <li>admin@nwu.ac.za / password123</li>
-          <li>buyer@nwu.ac.za / password123</li>
-          <li>seller@nwu.ac.za / password123</li>
-        </ul>
-      </div>
+        {/* Forgot Password link */}
+        <div className="text-right">
+          <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
+            Forgot Password?
+          </Link>
+        </div>
+
+        <button
+          type="submit"
+          className="btn btn-primary w-full mt-2"
+        >
+          Sign In
+        </button>
+      </form>
+
+      <p className="text-center mt-4 text-sm text-gray-600">
+        Use one of these demo accounts:
+      </p>
+      <ul className="text-center text-xs text-gray-500 mt-1 space-y-1">
+        <li>admin@nwu.ac.za / password123</li>
+        <li>buyer@nwu.ac.za / password123</li>
+        <li>seller@nwu.ac.za / password123</li>
+      </ul>
     </div>
   );
 }
