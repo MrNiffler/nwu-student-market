@@ -26,6 +26,22 @@ const DUMMY_USERS = {
     role: "seller",
   },
 };
+// ✅ Added: Send Password Reset (dummy / frontend simulation)
+const sendPasswordReset = async (email) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (!email.endsWith("@mynwu.ac.za")) {
+        reject(new Error("Invalid NWU email address"));
+      } else if (!Object.keys(DUMMY_USERS).includes(email.toLowerCase())) {
+        reject(new Error("No account found for that email"));
+      } else {
+        alert(`📧 A password reset link has been sent to ${email}`);
+        resolve(true);
+      }
+    }, 1000);
+  });
+};
+
 
 // Helper: set user + token locally
 const setLocalUser = (user, token) => {
@@ -121,7 +137,15 @@ export const AuthProvider = ({ children }) => {
     return entry;
   };
 
-  const value = { currentUser, signIn, signUp, signOut, loginDummy };
+   const value = {
+    currentUser,
+    signIn,
+    signUp,
+    signOut,
+    loginDummy,
+    sendPasswordReset,
+  };
+
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
