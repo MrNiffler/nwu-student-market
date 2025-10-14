@@ -1,92 +1,107 @@
 import React, { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import "./SignUpPage.css"; // reuse same styling for consistent card
+import { useNavigate } from "react-router-dom";
+import { loginUser, setAuthToken } from "../api/endpoints.js"; // ✅ fixed path (.js added)
+import axios from "axios";
 
-export default function SignInPage() {
+const SignIn = () => {
   const navigate = useNavigate();
-  const { signIn } = useAuth();
-
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setLoading(true);
 
     try {
-      const user = await signIn(email, password);
+      // 1️⃣ Send login request to backend
+      const res = await loginUser(formData);
+      const { token } = res.data;
 
-      // Redirect based on role
-      if (user?.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard"); // Regular user dashboard
-      }
+      if (!token) throw new Error("No token returned from server");
+
+      // 2️⃣ Save token in localStorage
+      localStorage.setItem("token", token);
+      setAuthToken(token);
+
+      // 3️⃣ Fetch logged-in user
+      const userRes = await axios.get("http://localhost:5000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const user = userRes.data;
+      localStorage.setItem("user", JSON.stringify(user));
+
+      // 4️⃣ Redirect to dashboard
+      navigate("/dashboard");
     } catch (err) {
-      console.error("Login failed:", err);
-      setError(err.message || "Invalid email or password");
+      console.error(err);
+      setError(
+        err.response?.data?.message ||
+          "Invalid email or password. Please try again."
+      );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="center-card slide-up">
-      <h1 className="page-title text-center">Sign In</h1>
-      <p className="muted text-center mb-4">Welcome back to NWU Student Market</p>
+    <div className="flex justify-center items-center h-screen bg-gray-50">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white p-8 rounded-lg shadow-md w-full max-w-md"
+      >
+        <h2 className="text-2xl font-semibold text-center mb-6 text-gray-700">
+          Sign In
+        </h2>
 
-      {error && <p className="text-red-600 text-sm mb-2 text-center">{error}</p>}
+        {error && (
+          <div className="bg-red-100 text-red-600 p-2 rounded mb-4 text-sm">
+            {error}
+          </div>
+        )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Enter your NWU email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
-
-        <div className="relative">
+        <div className="mb-4">
+          <label className="block text-gray-600 mb-2">Email</label>
           <input
-            type={showPassword ? "text" : "password"}
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
             required
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            placeholder="Enter your email"
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 text-sm"
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
         </div>
 
-        {/* Forgot Password link */}
-        <div className="text-right">
-          <Link to="/forgot-password" className="text-blue-600 text-sm hover:underline">
-            Forgot Password?
-          </Link>
+        <div className="mb-6">
+          <label className="block text-gray-600 mb-2">Password</label>
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:ring-blue-200"
+            placeholder="Enter your password"
+          />
         </div>
 
         <button
           type="submit"
-          className="btn btn-primary w-full mt-2"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition duration-200"
         >
-          Sign In
+          {loading ? "Signing in..." : "Sign In"}
         </button>
       </form>
-
-      <p className="text-center mt-4 text-sm text-gray-600">
-        Use one of these demo accounts:
-      </p>
-      <ul className="text-center text-xs text-gray-500 mt-1 space-y-1">
-        <li>admin@nwu.ac.za / password123</li>
-        <li>buyer@nwu.ac.za / password123</li>
-        <li>seller@nwu.ac.za / password123</li>
-      </ul>
     </div>
   );
-}
+};
+
+export default SignIn;

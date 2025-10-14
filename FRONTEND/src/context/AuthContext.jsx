@@ -1,52 +1,13 @@
-// src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { loginUser, registerUser, setAuthToken } from "../api/endpoints.js"; 
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-// Dummy accounts (frontend-only)
-const DUMMY_PASSWORD = "password123";
-const DUMMY_USERS = {
-  "admin@nwu.ac.za": {
-    id: 1001,
-    full_name: "Admin Tester",
-    email: "admin@nwu.ac.za",
-    role: "admin",
-  },
-  "buyer@nwu.ac.za": {
-    id: 22,
-    full_name: "Buyer Tester",
-    email: "buyer@nwu.ac.za",
-    role: "buyer",
-  },
-  "seller@nwu.ac.za": {
-    id: 1003,
-    full_name: "Seller Tester",
-    email: "seller@nwu.ac.za",
-    role: "seller",
-  },
-};
-// ✅ Added: Send Password Reset (dummy / frontend simulation)
-const sendPasswordReset = async (email) => {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      if (!email.endsWith("@mynwu.ac.za")) {
-        reject(new Error("Invalid NWU email address"));
-      } else if (!Object.keys(DUMMY_USERS).includes(email.toLowerCase())) {
-        reject(new Error("No account found for that email"));
-      } else {
-        alert(`📧 A password reset link has been sent to ${email}`);
-        resolve(true);
-      }
-    }, 1000);
-  });
-};
-
-
-// Helper: set user + token locally
 const setLocalUser = (user, token) => {
   localStorage.setItem("user", JSON.stringify(user));
   localStorage.setItem("token", token);
+  setAuthToken(token);
 };
 
 export const AuthProvider = ({ children }) => {
@@ -54,98 +15,66 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
-    if (savedUser) setCurrentUser(savedUser);
+    const token = localStorage.getItem("token");
+    if (savedUser && token) {
+      setCurrentUser(savedUser);
+      setAuthToken(token);
+    }
   }, []);
 
-  // Sign in function (backend), but with dummy-account shortcut
+  // ---------- Backend login ----------
   const signIn = async (email, password) => {
-    // quick validation
     if (!email || !password) {
       throw new Error("Email and password are required");
     }
 
-    // ---------- DUMMY ACCOUNT CHECK ----------
-    const lowerEmail = String(email).trim().toLowerCase();
-    const dummy = DUMMY_USERS[lowerEmail];
-    if (dummy && password === DUMMY_PASSWORD) {
-      const token = `${dummy.role}-dummy-token`; // local-only token
-      setCurrentUser(dummy);
-      setLocalUser(dummy, token);
-      return dummy;
+    try {
+      const res = await loginUser({ email, password });
+      const { token, user } = res.data;
+      setCurrentUser(user);
+      setLocalUser(user, token);
+      return user;
+    } catch (err) {
+      console.error("Login error:", err);
+      throw new Error(
+        err.response?.data?.message || "Login failed. Check credentials."
+      );
     }
-    // -----------------------------------------
-
-    // ---------- BACKEND CALL (temporarily disabled) ----------
-    /*
-    const res = await fetch("http://localhost:5000/api/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) {
-      throw new Error(data.message || "Login failed");
-    }
-
-    if (data.token) localStorage.setItem("token", data.token);
-    setCurrentUser(data.user || { email });
-    localStorage.setItem("user", JSON.stringify(data.user || { email }));
-
-    return data.user;
-    */
   };
 
-  // Sign up function (backend)
-  const signUp = async (full_name, email, password, student_number) => {
+  // ---------- Backend signup ----------
+  const signUp = async (full_name, email, password, student_number, role = "buyer") => {
     if (!full_name || !email || !password || !student_number) {
       throw new Error("All fields are required");
     }
 
-    const res = await fetch("http://localhost:5000/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ full_name, email, password, student_number }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || "Sign up failed");
+    try {
+      const res = await registerUser({ full_name, email, password, student_number, role });
+      const { token, user } = res.data;
+      setCurrentUser(user);
+      setLocalUser(user, token);
+      return user;
+    } catch (err) {
+      console.error("Signup error:", err);
+      throw new Error(
+        err.response?.data?.message || "Sign up failed. Try again."
+      );
     }
-
-    const data = await res.json();
-    setCurrentUser(data.user || { email });
-    localStorage.setItem("user", JSON.stringify(data.user || { email }));
-
-    return data.user;
   };
 
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
+    setAuthToken(null);
   };
 
-  // Explicit programmatic dummy login (callable from components)
-  const loginDummy = (role) => {
-    // role: 'admin' | 'buyer' | 'seller'
-    const entry = Object.values(DUMMY_USERS).find((u) => u.role === role);
-    if (!entry) return null;
-    const token = `${entry.role}-dummy-token`;
-    setCurrentUser(entry);
-    setLocalUser(entry, token);
-    return entry;
-  };
-
-   const value = {
+  const value = {
     currentUser,
     signIn,
     signUp,
     signOut,
-    loginDummy,
-    sendPasswordReset,
   };
-
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
