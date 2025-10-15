@@ -21,8 +21,9 @@ import CancelPage from "./pages/CancelPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import CreateListing from "./pages/CreateListing";
-import Dashboard from "./components/Dashboard"; // ✅ User Dashboard
+import Dashboard from "./components/Dashboard"; 
 
+// ProtectedRoute updated to redirect not-logged-in users to /signin
 const ProtectedRoute = ({ children }) => {
   const { currentUser } = useAuth();
   return currentUser ? children : <Navigate to="/signin" replace />;
@@ -142,7 +143,7 @@ function App() {
               currentUser?.role === "admin" ? (
                 <AdminDashboard user={currentUser} />
               ) : (
-                <Navigate to="/profile" replace />
+                <Navigate to="/signin" replace />
               )
             }
           />
@@ -152,7 +153,7 @@ function App() {
               currentUser?.role === "admin" ? (
                 <AnalyticsPage />
               ) : (
-                <Navigate to="/profile" replace />
+                <Navigate to="/signin" replace />
               )
             }
           />

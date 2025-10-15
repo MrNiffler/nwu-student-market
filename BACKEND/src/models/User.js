@@ -3,14 +3,14 @@ import bcrypt from 'bcrypt';
 
 const SALT_ROUNDS = 12;
 
-export const createUser = async (email, password, role = 'buyer') => {
+export const createUser = async (full_name, email, password, student_number, role = 'buyer') => {
   const hash = await bcrypt.hash(password, SALT_ROUNDS);
   const query = `
-    INSERT INTO users (email, password_hash, role)
-    VALUES ($1, $2, $3)
-    RETURNING id, email, role;
+    INSERT INTO users (full_name, email, student_number, password_hash, role)
+    VALUES ($1, $2, $3, $4, $5)
+    RETURNING id, full_name, email, role;
   `;
-  const res = await pool.query(query, [email, hash, role]);
+  const res = await pool.query(query, [full_name, email, student_number, hash, role]);
   return res.rows[0];
 };
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "./SignUpPage.css";
+import "./SignUpPage.css"; // reuse same CSS
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -23,7 +23,6 @@ export default function SignUpPage() {
     match: true,
   });
 
-  // Live validation effect
   useEffect(() => {
     const length = password.length >= 6;
     const number = /\d/.test(password);
@@ -35,7 +34,6 @@ export default function SignUpPage() {
     e.preventDefault();
     setError("");
 
-    // Prevent submit if there are validation errors
     if (passwordErrors.length || passwordErrors.number || passwordErrors.match) {
       setError("Please fix the errors above before signing up.");
       return;
@@ -43,7 +41,7 @@ export default function SignUpPage() {
 
     try {
       await signUp(full_name, email, password, student_number);
-      navigate("/dashboard"); // regular user dashboard
+      navigate("/dashboard");
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to sign up");
@@ -55,9 +53,9 @@ export default function SignUpPage() {
       <h1 className="page-title">Create Account</h1>
       <p className="muted">Join the NWU Student Market</p>
 
-      {error && <p className="text-red-600 text-sm mb-2">{error}</p>}
+      {error && <p className="error">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="form">
         <input
           type="text"
           placeholder="Full Name"
@@ -65,6 +63,7 @@ export default function SignUpPage() {
           onChange={(e) => setFullName(e.target.value)}
           required
         />
+
         <input
           type="email"
           placeholder="Email"
@@ -73,7 +72,6 @@ export default function SignUpPage() {
           required
         />
 
-        {/* Student Number above passwords */}
         <input
           type="text"
           placeholder="Student Number"
@@ -93,14 +91,13 @@ export default function SignUpPage() {
           />
           <button
             type="button"
+            className="show-hide-btn"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-2 top-2 text-sm text-gray-500"
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
 
-        {/* Password length & number errors below first password */}
         <div className="text-xs text-red-600 space-y-1">
           {passwordErrors.length && <p>Password must be at least 6 characters long.</p>}
           {passwordErrors.number && <p>Password must include at least one number.</p>}
@@ -117,19 +114,20 @@ export default function SignUpPage() {
           />
           <button
             type="button"
+            className="show-hide-btn"
             onClick={() => setShowConfirm(!showConfirm)}
-            className="absolute right-2 top-2 text-sm text-gray-500"
           >
             {showConfirm ? "Hide" : "Show"}
           </button>
         </div>
 
-        {/* Passwords do not match below confirm password */}
         <div className="text-xs text-red-600 space-y-1">
           {passwordErrors.match && <p>Passwords do not match.</p>}
         </div>
 
-        <button type="submit" className="btn btn-primary w-full mt-2">Sign up</button>
+        <button type="submit">
+          Sign Up
+        </button>
       </form>
     </div>
   );

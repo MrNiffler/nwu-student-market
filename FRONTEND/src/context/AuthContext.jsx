@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { loginUser, registerUser, setAuthToken } from "../api/endpoints.js"; 
+import axios from "axios"; // needed for password reset request
 
 const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
@@ -62,6 +63,18 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ---------- Password Reset ----------
+  const sendPasswordReset = async (email) => {
+    if (!email) throw new Error("Email is required");
+    try {
+      await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
+      // assumes your backend accepts { email } and sends reset link
+    } catch (err) {
+      console.error("Password reset error:", err);
+      throw new Error(err.response?.data?.message || "Failed to send reset link");
+    }
+  };
+
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
@@ -74,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     signIn,
     signUp,
     signOut,
+    sendPasswordReset, // <--- added here
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
