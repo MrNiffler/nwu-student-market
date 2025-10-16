@@ -1,6 +1,9 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+import api from "../api/api";
 
-function MessageModal({ listingId, senderId, receiverId, onClose, addNotification }) {
+function MessageModal({ conversationId, receiverId, onClose, addNotification }) {
+  const { user } = useContext(AuthContext);
   const [message, setMessage] = useState("");
   const [sending, setSending] = useState(false);
 
@@ -11,22 +14,10 @@ function MessageModal({ listingId, senderId, receiverId, onClose, addNotificatio
     }
     setSending(true);
     try {
-      const res = await fetch("http://localhost:5000/api/messages", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          // Include JWT token if required: Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          senderId,
-          receiverId,
-          listingId,
-          message,
-        }),
+      await api.post(`/messages/conversations/${conversationId}/messages`, {
+        sender_id: user.id,
+        body: message,
       });
-
-      if (!res.ok) throw new Error("Failed to send message");
-
       addNotification("Message sent successfully!", "success");
       setMessage("");
       onClose();

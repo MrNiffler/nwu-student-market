@@ -6,7 +6,6 @@ import {
   addToWishlist as apiAddToWishlist,
 } from "../api/endpoints";
 import "../style.css";
-import { FaShoppingCart, FaHeart } from "react-icons/fa";
 import ChatBox from "../components/ChatBox";
 
 // RatingStars component
@@ -78,7 +77,6 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [notifications, setNotifications] = useState([]);
 
-  // Get user from localStorage
   const storedUser = JSON.parse(localStorage.getItem("user"));
   const userId = storedUser?.id || storedUser?._id || null;
 
@@ -152,9 +150,8 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
   }, []);
 
   useEffect(() => {
-    if (!searchTerm) {
-      setFilteredProducts(products);
-    } else {
+    if (!searchTerm) setFilteredProducts(products);
+    else {
       const filtered = products.filter((p) =>
         p.title.toLowerCase().includes(searchTerm.toLowerCase())
       );
@@ -251,7 +248,11 @@ function Marketplace({ cart, setCart, wishlist, setWishlist }) {
                     Wishlist
                   </button>
                 </div>
-                <ChatBox listingId={product.id} user={{ isLoggedIn: !!userId, id: userId }} />
+
+                {/* ChatBox visible under each listing */}
+                <div className="chatbox-wrapper">
+                  <ChatBox listingId={product.id} user={{ isLoggedIn: !!userId, id: userId }} />
+                </div>
               </div>
             ))
           )}

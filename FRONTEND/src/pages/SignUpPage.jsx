@@ -15,6 +15,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [invalidEmail, setInvalidEmail] = useState(false);
 
   // Password validation state
   const [passwordErrors, setPasswordErrors] = useState({
@@ -38,6 +39,14 @@ export default function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    setInvalidEmail(false);
+
+    // NWU email validation
+    if (!email.toLowerCase().endsWith("@mynwu.ac.za")) {
+      setError("You cannot sign up without a NWU email address.");
+      setInvalidEmail(true);
+      return;
+    }
 
     if (passwordErrors.length || passwordErrors.number || passwordErrors.match) {
       setError("Please fix the errors above before signing up.");
@@ -45,11 +54,17 @@ export default function SignUpPage() {
     }
 
     try {
-      await signUp(full_name, email, password, student_number);
-      navigate("/dashboard"); // ✅ redirect after signup
+      const response = await signUp(full_name, email, password, student_number);
+
+      // Check if signup was successful
+      if (response && response.success) {
+        navigate("/dashboard"); // ✅ redirect after signup
+      } else {
+        setError(response?.message || "Sign up failed");
+      }
     } catch (err) {
       console.error(err);
-      setError(err.message || "Failed to sign up");
+      setError(err.message || "Sign up failed");
     }
   };
 

@@ -2,7 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { loginUser, registerUser, setAuthToken } from "../api/endpoints.js";
 import axios from "axios";
 
-const AuthContext = createContext();
+// ✅ Export AuthContext so it can be imported by name
+export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 // Helper to save user and token
@@ -64,15 +65,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ---------- Signup ----------
-  const signUp = async (full_name, email, password, student_number, role = "buyer") => {
-    if (!full_name || !email || !password || !student_number)
-      throw new Error("All fields are required");
+const signUp = async (full_name, email, password, student_number, role = "buyer") => {
+  if (!full_name || !email || !password || !student_number)
+    throw new Error("All fields are required");
 
-    try {
-      const res = await registerUser({ full_name, email, password, student_number, role });
-      const { token } = res.data;
-      if (!token) throw new Error("No token returned");
+  try {
+    const res = await registerUser({ full_name, email, password, student_number, role });
+    const { token, user: createdUser } = res.data;
 
+    // If token exists, use it
+    if (token) {
       setAuthToken(token);
       const userRes = await axios.get("http://localhost:5000/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
@@ -81,11 +83,22 @@ export const AuthProvider = ({ children }) => {
       setCurrentUser(user);
       setLocalUser(user, token);
       return user;
-    } catch (err) {
-      console.error("Signup error:", err);
-      throw new Error(err.response?.data?.message || "Sign up failed");
     }
-  };
+
+    // If no token returned but user was created, still proceed
+    if (createdUser) {
+      setCurrentUser(createdUser);
+      localStorage.setItem("user", JSON.stringify(createdUser));
+      console.warn("Signup successful but no token returned");
+      return createdUser;
+    }
+
+    throw new Error("No token or user returned from signup");
+  } catch (err) {
+    console.error("Signup error:", err);
+    throw new Error(err.response?.data?.message || "Sign up failed");
+  }
+};
 
   // ---------- Update User ----------
   const updateUser = async (updates) => {
@@ -95,7 +108,6 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       const data = new FormData();
 
-      // Append updates (supports file uploads, e.g., avatar)
       Object.keys(updates).forEach((key) => {
         if (updates[key] !== undefined && updates[key] !== null) {
           data.append(key, updates[key]);
@@ -147,7 +159,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     signIn,
     signUp,
-    updateUser,        // new
+    updateUser,
     signOut,
     sendPasswordReset,
     loadingUser,

@@ -17,6 +17,7 @@ function ChatInput({ onSend }) {
         placeholder="Type your message..."
         value={text}
         onChange={(e) => setText(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && handleSend()}
       />
       <button onClick={handleSend}>Send</button>
     </div>
