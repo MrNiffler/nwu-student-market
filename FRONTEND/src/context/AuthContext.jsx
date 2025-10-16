@@ -135,16 +135,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ---------- Password Reset ----------
-  const sendPasswordReset = async (email) => {
-    if (!email) throw new Error("Email is required");
-    try {
-      await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
-    } catch (err) {
-      console.error("Password reset error:", err);
-      throw new Error(err.response?.data?.message || "Failed to send reset link");
-    }
-  };
+ 
 
   // ---------- Logout ----------
   const signOut = () => {
