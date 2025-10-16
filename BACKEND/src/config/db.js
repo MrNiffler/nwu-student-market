@@ -10,7 +10,7 @@ export const pool = new Pool({
   host: process.env.DB_HOST,
   database: process.env.DB_NAME,
   password: process.env.DB_PASS,
-  port: Number(process.env.DB_PORT || 5432),
+  port: Number(process.env.DB_PORT),
 });
 
 export async function assertDbConnection() {
@@ -23,8 +23,7 @@ export async function assertDbConnection() {
   }
 }
 
+//test connection immediately
 pool.connect()
-  .then(() => console.log("✅ Database connected successfully"))
-  .catch((err) => {
-    console.error("❌ Database connection error:", err.message);
-  });
+  .then(() => console.log("Database connected successfully"))
+  .catch((err) => console.error("Database connection error:", err.message));

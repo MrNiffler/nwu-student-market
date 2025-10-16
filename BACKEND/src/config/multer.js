@@ -1,38 +1,36 @@
-// config/multer.js
-import multer from 'multer';
-import path from 'path';
+// src/config/multer.js
+import multer from "multer";
+import path from "path";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./cloudinary.js";
 
-// Configure storage for uploaded files
-const storage = multer.diskStorage({
-  destination(req, file, cb) {
-    cb(null, 'uploads/');
+// Configure dynamic Cloudinary storage
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: async (req, file) => {
+    const folderName = `listings/${req.params.id || "temp"}`;
+    return {
+      folder: folderName,
+      format: file.mimetype.split("/")[1],
+      public_id: `${Date.now()}-${Math.round(Math.random() * 1e9)}`,
+      resource_type: "image",
+    };
   },
-  filename(req, file, cb) {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, uniqueSuffix + '-' + file.originalname);
-  }
 });
 
-// File filter to only allow images
+// Filter image types
 const fileFilter = (req, file, cb) => {
-  const allowedTypes = /jpeg|jpg|png|gif|webp/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
-
-  if (mimetype && extname) {
-    cb(null, true);
-  } else {
-    cb(new Error('Only image files (jpeg, jpg, png, gif, webp) are allowed!'), false);
-  }
+  const allowed = /jpeg|jpg|png|gif|webp/;
+  const ext = allowed.test(path.extname(file.originalname).toLowerCase());
+  const mime = allowed.test(file.mimetype);
+  if (ext && mime) cb(null, true);
+  else cb(new Error("Only image files (jpeg, jpg, png, gif, webp) are allowed!"), false);
 };
 
-// Initialize multer
 const upload = multer({
   storage,
-  limits: {
-    fileSize: 50 * 1024 * 1024 // 50MB
-  },
-  fileFilter
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20 MB max
+  fileFilter,
 });
 
 export default upload;
