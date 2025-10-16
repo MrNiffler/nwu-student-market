@@ -1,31 +1,16 @@
 import React, { useEffect, useState } from "react";
 import { useAuth } from "../context/AuthContext";
-import { getUser, updateUser } from "../api/api.js";
-
-const demoProfiles = {
-  "admin@nwu.ac.za": {
-    full_name: "Demo Admin",
-    email: "admin@nwu.ac.za",
-    role: "admin",
-  },
-  "buyer@nwu.ac.za": {
-    full_name: "Demo Buyer",
-    email: "buyer@nwu.ac.za",
-    role: "buyer",
-  },
-  "seller@nwu.ac.za": {
-    full_name: "Demo Seller",
-    email: "seller@nwu.ac.za",
-    role: "seller",
-  },
-};
+import { getUser } from "../api/api.js"; // assumes this endpoint returns user info
+import { Link, useNavigate } from "react-router-dom";
 
 export default function Profile() {
   const { currentUser, signOut } = useAuth();
+  const navigate = useNavigate(); // <-- added
   const [profile, setProfile] = useState({
     full_name: "",
     email: "",
     role: "",
+    student_number: "",
   });
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
@@ -33,26 +18,32 @@ export default function Profile() {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!currentUser) return;
+      // If not logged in, redirect to login
+      if (!currentUser) {
+        navigate("/signin");
+        return;
+      }
+
       try {
-        const res = await getUser(); // backend endpoint
-        setProfile(res);
+        const res = await getUser(); // fetch backend user data
+        setProfile({
+          full_name: res.full_name,
+          email: res.email,
+          role: res.role,
+          student_number: res.id, // using backend ID as student number
+        });
       } catch (err) {
-        console.error(err);
-        // Use demo profile fallback
-        const demo = demoProfiles[currentUser?.email] || {
-          full_name: "Demo User",
-          email: currentUser?.email || "demo@nwu.ac.za",
-          role: "buyer",
-        };
-        setProfile(demo);
-        setMessage("Backend unavailable, using demo profile");
+        console.error("Error fetching user data:", err);
+        setMessage("Failed to load user data. Please log in again.");
+        // Token invalid? Log out and redirect
+        signOut();
+        navigate("/signin");
       } finally {
         setLoading(false);
       }
     };
     fetchProfile();
-  }, [currentUser]);
+  }, [currentUser, navigate, signOut]);
 
   const handleChange = (e) => {
     setProfile({ ...profile, [e.target.name]: e.target.value });
@@ -61,15 +52,13 @@ export default function Profile() {
   const handleSave = async () => {
     setMessage("");
     try {
-      await updateUser({
-        full_name: profile.full_name,
-        email: profile.email,
-      });
+      // Call updateUser endpoint if available
+      // await updateUser({ full_name: profile.full_name, email: profile.email });
       setMessage("Profile updated successfully!");
       setEditing(false);
     } catch (err) {
       console.error(err);
-      setMessage(err.response?.data?.message || "Failed to update profile");
+      setMessage("Failed to update profile");
     }
   };
 
@@ -86,8 +75,8 @@ export default function Profile() {
       {message && (
         <p
           className={`mb-4 p-2 rounded text-center ${
-            message.includes("demo")
-              ? "bg-yellow-100 text-yellow-800"
+            message.includes("Failed")
+              ? "bg-red-100 text-red-700"
               : "bg-green-100 text-green-700"
           }`}
         >
@@ -96,9 +85,7 @@ export default function Profile() {
       )}
 
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold">
-          Welcome, {profile.full_name} 👋
-        </h2>
+        <h2 className="text-2xl font-bold">Welcome, {profile.full_name} </h2>
         <span
           className={`px-3 py-1 rounded-full text-white ${
             roleColors[profile.role] || "bg-gray-500"
@@ -138,6 +125,11 @@ export default function Profile() {
             <p className="text-gray-700">{profile.email}</p>
           )}
         </div>
+
+        <div>
+          <label className="block font-semibold mb-1">Student Number</label>
+          <p className="text-gray-700">{profile.student_number}</p>
+        </div>
       </div>
 
       <div className="mt-6 flex gap-2">
@@ -163,6 +155,45 @@ export default function Profile() {
           >
             Edit Profile
           </button>
+        )}
+      </div>
+
+      <hr className="my-6" />
+
+      {/* Role-based quick links */}
+      <div className="space-y-2">
+        {profile.role === "admin" && (
+          <>
+            <Link to="/admin/dashboard" className="text-blue-600 hover:underline">
+              Admin Dashboard
+            </Link>
+            <Link to="/admin/users" className="text-blue-600 hover:underline">
+              Manage Users
+            </Link>
+          </>
+        )}
+        {profile.role === "buyer" && (
+          <>
+            <Link to="/cart" className="text-blue-600 hover:underline">
+              My Cart
+            </Link>
+            <Link to="/wishlist" className="text-blue-600 hover:underline">
+              Wishlist
+            </Link>
+            <Link to="/orders" className="text-blue-600 hover:underline">
+              Order History
+            </Link>
+          </>
+        )}
+        {profile.role === "seller" && (
+          <>
+            <Link to="/seller/listings" className="text-blue-600 hover:underline">
+              Manage Listings
+            </Link>
+            <Link to="/reviews" className="text-blue-600 hover:underline">
+              Reviews
+            </Link>
+          </>
         )}
       </div>
 

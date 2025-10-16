@@ -9,7 +9,8 @@ export const register = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { email, password, role = 'buyer' } = req.body;
+  const { full_name, email, password, student_number, role = 'buyer' } = req.body;
+
   if (!['buyer', 'seller'].includes(role)) {
     return res.status(400).json({ message: 'Invalid role. Only buyer/seller allowed.' });
   }
@@ -19,7 +20,8 @@ export const register = async (req, res) => {
     return res.status(400).json({ message: 'Email already registered' });
   }
 
-  const user = await createUser(email, password, role);
+  // Updated: pass full_name and student_number to createUser
+  const user = await createUser(full_name, email, password, student_number, role);
   const token = generateToken(user.id, user.role);
   res.status(201).json({ token, user: { id: user.id, email: user.email, role: user.role } });
 };
