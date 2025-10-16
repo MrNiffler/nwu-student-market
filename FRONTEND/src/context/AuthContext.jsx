@@ -1,11 +1,11 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
+import axios from "axios"; // Make sure axios is imported
 
-// ✅ Export AuthContext so it can be imported by name
 export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
-// Dummy accounts (frontend-only)
+// Dummy credentials (for frontend-only testing)
 const DUMMY_PASSWORD = "password123";
 const DUMMY_USERS = {
   "admin@mynwu.ac.za": {
@@ -15,20 +15,20 @@ const DUMMY_USERS = {
     role: "admin",
   },
   "buyer@mynwu.ac.za": {
-    id: 22,
+    id: 1002,
     full_name: "Buyer Tester",
-    email: "buyermy@nwu.ac.za",
+    email: "buyer@mynwu.ac.za",
     role: "buyer",
   },
   "seller@mynwu.ac.za": {
     id: 1003,
     full_name: "Seller Tester",
-    email: "seller@nwu.ac.za",
+    email: "seller@mynwu.ac.za",
     role: "seller",
   },
 };
 
-// Helper: set user + token locally
+//  Helper to persist user locally
 const setLocalUser = (user, token) => {
   localStorage.setItem("user", JSON.stringify(user));
   localStorage.setItem("token", token);
@@ -37,12 +37,13 @@ const setLocalUser = (user, token) => {
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Load saved user on mount
   useEffect(() => {
     const savedUser = JSON.parse(localStorage.getItem("user"));
     if (savedUser) setCurrentUser(savedUser);
   }, []);
 
-  // Sign in function (backend), but with dummy-account shortcut
+  // Fixed Sign In function
   const signIn = async (email, password) => {
     if (!email || !password) {
       throw new Error("Email and password are required");
@@ -50,14 +51,16 @@ export const AuthProvider = ({ children }) => {
 
     const lowerEmail = String(email).trim().toLowerCase();
     const dummy = DUMMY_USERS[lowerEmail];
+
+    // 
     if (dummy && password === DUMMY_PASSWORD) {
       const token = `${dummy.role}-dummy-token`;
       setCurrentUser(dummy);
       setLocalUser(dummy, token);
-      return dummy;
+      return dummy; // Return the dummy user
     }
 
-    // Backend call (disabled)
+    // Optional backend logic (disabled for now)
     /*
     const res = await fetch("http://localhost:5000/api/auth/login", {
       method: "POST",
@@ -67,28 +70,32 @@ export const AuthProvider = ({ children }) => {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.message || "Login failed");
-    if (data.token) localStorage.setItem("token", data.token);
-    setCurrentUser(data.user || { email });
-    localStorage.setItem("user", JSON.stringify(data.user || { email }));
-    return data.user;
+    const user = data.user || { email };
+    setCurrentUser(user);
+    setLocalUser(user, data.token || "backend-token");
+    return user;
     */
+
+    throw new Error("Invalid email or password. Please try again.");
   };
 
-  // ---------- Signup ----------
+  //  Sign Up (backend only)
   const signUp = async (full_name, email, password, student_number, role = "buyer") => {
     if (!full_name || !email || !password || !student_number)
       throw new Error("All fields are required");
 
     try {
-      const res = await registerUser({ full_name, email, password, student_number, role });
-      const { token } = res.data;
-      if (!token) throw new Error("No token returned");
-
-      setAuthToken(token);
-      const userRes = await axios.get("http://localhost:5000/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await axios.post("http://localhost:5000/api/auth/register", {
+        full_name,
+        email,
+        password,
+        student_number,
+        role,
       });
-      const user = userRes.data;
+
+      const { token, user } = res.data;
+      if (!token || !user) throw new Error("Invalid signup response");
+
       setCurrentUser(user);
       setLocalUser(user, token);
       return user;
@@ -98,7 +105,7 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // ---------- Update User ----------
+  // Update user profile
   const updateUser = async (updates) => {
     if (!currentUser) throw new Error("No logged-in user");
 
@@ -106,28 +113,20 @@ export const AuthProvider = ({ children }) => {
       const token = localStorage.getItem("token");
       const data = new FormData();
 
-      // Append updates (supports file uploads, e.g., avatar)
-      Object.keys(updates).forEach((key) => {
-        if (updates[key] !== undefined && updates[key] !== null) {
-          data.append(key, updates[key]);
-        }
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) data.append(key, value);
       });
 
-      const res = await axios.patch(
-        "http://localhost:5000/api/users/me",
-        data,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        }
-      );
+      const res = await axios.patch("http://localhost:5000/api/users/me", data, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      });
 
       const updatedUser = res.data;
       setCurrentUser(updatedUser);
-      localStorage.setItem("user", JSON.stringify(updatedUser));
-
+      setLocalUser(updatedUser, token);
       return updatedUser;
     } catch (err) {
       console.error("Update user error:", err);
@@ -135,26 +134,24 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
- 
-
-  // ---------- Logout ----------
+  //Logout
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
     localStorage.removeItem("token");
   };
 
-  // Explicit dummy login (admin/buyer/seller)
+  // Quick dummy login helper
   const loginDummy = (role) => {
     const entry = Object.values(DUMMY_USERS).find((u) => u.role === role);
-    if (!entry) return null;
+    if (!entry) throw new Error("Invalid dummy role");
     const token = `${entry.role}-dummy-token`;
     setCurrentUser(entry);
     setLocalUser(entry, token);
     return entry;
   };
 
-  // DONT REMOVE FORGET PASSWORD WONT WORK!!! Send Password Reset (dummy / frontend simulation)
+ //DONT REMOVE FORGET PASSWORD WONT WORK!!! Send Password Reset (dummy / frontend simulation)
   const sendPasswordReset = async (email) => {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
@@ -170,12 +167,12 @@ export const AuthProvider = ({ children }) => {
     });
   };
 
-  // ✅ Include sendPasswordReset in context value
+  // Provide everything in context
   const value = {
     currentUser,
     signIn,
     signUp,
-    updateUser,        // new
+    updateUser,
     signOut,
     loginDummy,
     sendPasswordReset,
@@ -183,4 +180,3 @@ export const AuthProvider = ({ children }) => {
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
