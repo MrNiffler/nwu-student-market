@@ -1,0 +1,108 @@
+.profile-page {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 80vh;
+  padding: 2rem;
+  background: #f3f4f6;
+}
+
+.profile-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.profile-card h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #111827;
+  text-align: center;
+}
+
+.profile-picture {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.profile-picture img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #4f46e5;
+}
+
+.profile-info label {
+  display: block;
+  margin: 0.5rem 0 0.3rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.profile-info input {
+  width: 100%;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  font-size: 1rem;
+  outline: none;
+  background: #f9fafb;
+}
+
+.profile-info input:disabled {
+  background: #e5e7eb;
+}
+
+.profile-info button {
+  width: 100%;
+  padding: 0.7rem;
+  margin-bottom: 0.5rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s all;
+}
+
+.edit-btn {
+  background-color: #4f46e5;
+  color: #fff;
+}
+
+.save-btn {
+  background-color: #10b981;
+  color: #fff;
+}
+
+.signout-btn {
+  background-color: #ef4444;
+  color: #fff;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+.role-section {
+  margin-top: 2rem;
+}
+
+.role-section h2 {
+  margin-bottom: 0.5rem;
+  color: #4b5563;
+}
+
+.role-section button {
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0.8rem;
+  background-color: #4f46e5;
+  color: #fff;
+  border-radius: 6px;
+}

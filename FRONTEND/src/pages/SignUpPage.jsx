@@ -5,7 +5,7 @@ import "./SignUpPage.css"; // reuse same CSS
 
 export default function SignUpPage() {
   const navigate = useNavigate();
-  const { signUp } = useAuth();
+  const { signUp, currentUser } = useAuth();
 
   const [full_name, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -16,7 +16,7 @@ export default function SignUpPage() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
-  // Validation state
+  // Password validation state
   const [passwordErrors, setPasswordErrors] = useState({
     length: true,
     number: true,
@@ -30,6 +30,11 @@ export default function SignUpPage() {
     setPasswordErrors({ length: !length, number: !number, match: !match });
   }, [password, confirmPassword]);
 
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) navigate("/dashboard");
+  }, [currentUser, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -41,7 +46,7 @@ export default function SignUpPage() {
 
     try {
       await signUp(full_name, email, password, student_number);
-      navigate("/dashboard");
+      navigate("/dashboard"); // ✅ redirect after signup
     } catch (err) {
       console.error(err);
       setError(err.message || "Failed to sign up");
@@ -125,7 +130,7 @@ export default function SignUpPage() {
           {passwordErrors.match && <p>Passwords do not match.</p>}
         </div>
 
-        <button type="submit">
+        <button type="submit" disabled={passwordErrors.length || passwordErrors.number || passwordErrors.match}>
           Sign Up
         </button>
       </form>
