@@ -1,11 +1,13 @@
+// src/pages/CreateListing.jsx
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext"; // get currentUser and token
+import { useAuth } from "../context/AuthContext";
 import "./CreateListing.css";
 
-function CreateListing({ addNotification }) {
+const CreateListing = ({ addNotification }) => {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -13,14 +15,14 @@ function CreateListing({ addNotification }) {
     category: "",
     image: null,
   });
-  const [preview, setPreview] = useState(null); // new state for preview
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
       setFormData({ ...formData, [name]: files[0] });
-      setPreview(URL.createObjectURL(files[0])); // create preview URL
+      setPreview(URL.createObjectURL(files[0]));
     } else {
       setFormData({ ...formData, [name]: value });
     }
@@ -38,11 +40,9 @@ function CreateListing({ addNotification }) {
       setLoading(true);
 
       const data = new FormData();
-      data.append("title", formData.title);
-      data.append("description", formData.description);
-      data.append("price", formData.price);
-      data.append("category", formData.category);
-      if (formData.image) data.append("image", formData.image);
+      Object.entries(formData).forEach(([key, value]) => {
+        if (value) data.append(key, value);
+      });
 
       const response = await fetch("http://localhost:5000/api/listings", {
         method: "POST",
@@ -58,8 +58,7 @@ function CreateListing({ addNotification }) {
       }
 
       addNotification("Listing created successfully!", "success");
-      navigate("/marketplace");
-
+      navigate("/dashboard");
     } catch (error) {
       addNotification(error.message, "error");
     } finally {
@@ -68,72 +67,76 @@ function CreateListing({ addNotification }) {
   };
 
   return (
-    <div className="create-listing-container">
-      <h2>Create New Listing</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Title</label>
-        <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
-          required
-        />
+    <div className="create-listing-page">
+      <div className="create-listing-card">
+        <h1>Create New Listing</h1>
+        <form onSubmit={handleSubmit} className="create-listing-form">
+          <label>Title</label>
+          <input
+            type="text"
+            name="title"
+            placeholder="Listing title"
+            value={formData.title}
+            onChange={handleChange}
+            required
+          />
 
-        <label>Description</label>
-        <textarea
-          name="description"
-          value={formData.description}
-          onChange={handleChange}
-          required
-        />
+          <label>Description</label>
+          <textarea
+            name="description"
+            placeholder="Describe your item"
+            value={formData.description}
+            onChange={handleChange}
+            required
+          />
 
-        <label>Price</label>
-        <input
-          type="number"
-          name="price"
-          value={formData.price}
-          onChange={handleChange}
-          required
-        />
+          <label>Price (R)</label>
+          <input
+            type="number"
+            name="price"
+            placeholder="Price in R"
+            value={formData.price}
+            onChange={handleChange}
+            required
+          />
 
-        <label>Category</label>
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-        >
-          <option value="">Select category</option>
-          <option value="electronics">Electronics</option>
-          <option value="books">Books</option>
-          <option value="clothing">Clothing</option>
-          <option value="furniture">Furniture</option>
-          <option value="other">Other</option>
-        </select>
+          <label>Category</label>
+          <select
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select category</option>
+            <option value="electronics">Electronics</option>
+            <option value="books">Books</option>
+            <option value="clothing">Clothing</option>
+            <option value="furniture">Furniture</option>
+            <option value="other">Other</option>
+          </select>
 
-        <label>Image</label>
-        <input
-          type="file"
-          name="image"
-          accept="image/*"
-          onChange={handleChange}
-        />
-        
-        {/* Live preview */}
-        {preview && (
-          <div className="image-preview">
-            <p>Preview:</p>
-            <img src={preview} alt="Preview" style={{ maxWidth: "200px", borderRadius: "8px" }} />
-          </div>
-        )}
+          <label>Upload Image</label>
+          <input
+            type="file"
+            name="image"
+            accept="image/*"
+            onChange={handleChange}
+          />
 
-        <button type="submit" disabled={loading}>
-          {loading ? "Creating..." : "Create Listing"}
-        </button>
-      </form>
+          {preview && (
+            <div className="image-preview">
+              <p>Preview:</p>
+              <img src={preview} alt="Preview" />
+            </div>
+          )}
+
+          <button type="submit" disabled={loading}>
+            {loading ? "Creating..." : "Create Listing"}
+          </button>
+        </form>
+      </div>
     </div>
   );
-}
+};
 
 export default CreateListing;

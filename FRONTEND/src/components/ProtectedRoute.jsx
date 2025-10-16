@@ -1,16 +1,13 @@
-// src/components/ProtectedRoute.jsx
+import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children, addNotification }) => {
-  const { currentUser } = useAuth();
+const ProtectedRoute = ({ children, role }) => {
+  const { currentUser, loadingUser } = useAuth();
 
-  if (!currentUser) {
-    if (addNotification) {
-      addNotification("Please sign in to access this page", "error");
-    }
-    return <Navigate to="/signin" replace />;
-  }
+  if (loadingUser) return <div>Loading...</div>; // show loader while fetching user
+  if (!currentUser) return <Navigate to="/signin" replace />;
+  if (role && currentUser.role !== role) return <Navigate to="/signin" replace />;
 
   return children;
 };

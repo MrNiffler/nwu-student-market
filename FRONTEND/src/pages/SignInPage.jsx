@@ -1,16 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, setAuthToken } from "../api/endpoints.js";
-import axios from "axios";
+import { useAuth } from "../context/AuthContext"; // ✅ use AuthContext
 import "./SignInPage.css";
 
 export default function SignInPage() {
   const navigate = useNavigate();
+  const { signIn, currentUser } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (currentUser) navigate("/dashboard");
+  }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -18,26 +24,10 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-
-      const res = await loginUser({ email, password });
-      const { token } = res.data;
-      if (!token) throw new Error("No token returned from server");
-
-      localStorage.setItem("token", token);
-      setAuthToken(token);
-
-      const userRes = await axios.get("http://localhost:5000/api/users/me", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const user = userRes.data;
-      localStorage.setItem("user", JSON.stringify(user));
-
+      await signIn(email, password); // ✅ use AuthContext
       navigate("/dashboard");
     } catch (err) {
-      console.error(err);
-      setError(
-        err.response?.data?.message || "Invalid email or password. Please try again."
-      );
+      setError(err.message || "Invalid email or password. Please try again.");
     } finally {
       setLoading(false);
     }
