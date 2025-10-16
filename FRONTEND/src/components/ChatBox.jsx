@@ -1,38 +1,63 @@
-import React, { useState, useEffect } from "react";
-import ChatThread from "./ChatThread";
-import ChatInput from "./ChatInput";
+import React, { useEffect, useState } from "react";
+import { fetchAPI, postAPI } from "../api/api";
+import "../style.css";
 
 function ChatBox({ listingId, user }) {
   const [messages, setMessages] = useState([]);
-  console.log("Rendering ChatBox for listing:", listingId);
+  const [text, setText] = useState("");
 
-
-  useEffect(() => {
-    // Dummy data tied to listing
-    const dummyMessages = [
-      { sender: "me", text: "Is this still available?", timestamp: "18:45" },
-      { sender: "seller", text: "Yes, it is!", timestamp: "18:46" },
-    ];
-    setMessages(dummyMessages);
-  }, [listingId]);
-
-  const handleSend = (text) => {
-    const newMessage = {
-      sender: "me",
-      text,
-      timestamp: new Date().toLocaleTimeString(),
-    };
-    setMessages((prev) => [...prev, newMessage]);
-
-    // Future: emit via WebSocket
+  // Fetch messages
+  const fetchMessages = async () => {
+    if (!listingId) return;
+    try {
+      const data = await fetchAPI(`listings/${listingId}/messages`);
+      setMessages(data.data || []);
+    } catch (err) {
+      console.error("Failed to fetch messages:", err);
+    }
   };
 
-  if (!user?.isLoggedIn) return null;
+  useEffect(() => {
+    fetchMessages();
+    const interval = setInterval(fetchMessages, 5000); // auto-refresh
+    return () => clearInterval(interval);
+  }, [listingId]);
+
+  const handleSend = async () => {
+    if (!text.trim() || !user.isLoggedIn) return;
+    try {
+      await postAPI(`listings/${listingId}/messages`, {
+        userId: user.id,
+        text,
+      });
+      setText("");
+      fetchMessages(); // Refresh after sending
+    } catch (err) {
+      console.error("Failed to send message:", err);
+    }
+  };
 
   return (
     <div className="chat-box">
-      <ChatThread messages={messages} />
-      <ChatInput onSend={handleSend} />
+      <div className="chat-thread">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={`chat-message ${msg.userId === user.id ? "sent" : "received"}`}
+          >
+            {msg.text}
+          </div>
+        ))}
+      </div>
+      <div className="chat-input">
+        <input
+          type="text"
+          placeholder="Type a message..."
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+        <button onClick={handleSend}>Send</button>
+      </div>
     </div>
   );
 }

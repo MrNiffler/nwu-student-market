@@ -11,67 +11,55 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useAuth } from "../../context/AuthContext";
+import axios from "axios";
 
-ChartJS.register(CategoryScale, LinearScale, BarElement, ArcElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 export default function AnalyticsPage() {
+  const { currentUser } = useAuth();
   const [listings, setListings] = useState([]);
-  const [transactions, setTransactions] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/listings", {
+        headers: { Authorization: `Bearer ${currentUser.token}` },
+      });
+      setListings(res.data);
+    } catch (err) {
+      console.error("Failed to fetch listings:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/listings");
-        const data = await res.json();
-
-        // Validate API response
-        if (!Array.isArray(data) || data.length === 0) {
-          console.warn("API did not return valid listings, using dummy data.");
-          setListings(dummyListings());
-          setTransactions(dummyListings().reduce((acc, l) => acc + l.sales, 0));
-          return;
-        }
-
-        setListings(data);
-        setTransactions(data.reduce((acc, l) => acc + (l.sales || 0), 0));
-      } catch (err) {
-        console.error("Failed to fetch listings:", err);
-        // fallback to dummy data
-        const dummy = dummyListings();
-        setListings(dummy);
-        setTransactions(dummy.reduce((acc, l) => acc + l.sales, 0));
-      }
-    };
-
     fetchData();
   }, []);
 
-  // Dummy listings in case backend is unavailable
-  const dummyListings = () => [
-    { id: 1, title: "Laptop", category: "Electronics", status: "active", sales: 5 },
-    { id: 2, title: "Phone", category: "Electronics", status: "active", sales: 8 },
-    { id: 3, title: "Book", category: "Education", status: "inactive", sales: 3 },
-    { id: 4, title: "Headphones", category: "Electronics", status: "active", sales: 2 },
-    { id: 5, title: "Notebook", category: "Education", status: "active", sales: 7 },
-  ];
+  const transactions = listings.reduce((acc, l) => acc + (l.sales || 0), 0);
 
-  // Calculate most-used categories
-  const categoryCounts = Array.isArray(listings)
-    ? listings.reduce((acc, item) => {
-        const cat = item.category || "Uncategorized";
-        acc[cat] = (acc[cat] || 0) + 1;
-        return acc;
-      }, {})
-    : {};
+  const categoryCounts = listings.reduce((acc, item) => {
+    const cat = item.category || "Uncategorized";
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
 
   const barData = {
-    labels: Array.isArray(listings) ? listings.map((l) => l.title || "Unknown") : [],
+    labels: listings.map((l) => l.title || "Unknown"),
     datasets: [
       {
         label: "Active Listings",
-        data: Array.isArray(listings)
-          ? listings.map((l) => (l.status === "active" ? 1 : 0))
-          : [],
+        data: listings.map((l) => (l.status === "active" ? 1 : 0)),
         backgroundColor: "rgba(75, 192, 192, 0.6)",
       },
     ],
@@ -94,6 +82,8 @@ export default function AnalyticsPage() {
       },
     ],
   };
+
+  if (loading) return <p>Loading analytics...</p>;
 
   return (
     <div style={{ padding: "2rem" }}>

@@ -2,7 +2,6 @@ const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
 
 // Generic fetch wrapper
 export async function fetchAPI(endpoint, options = {}) {
-  // Get token from localStorage (saved on login)
   const token = localStorage.getItem("token");
 
   const res = await fetch(`${API_URL}/${endpoint}`, {
@@ -22,6 +21,14 @@ export async function fetchAPI(endpoint, options = {}) {
   return res.json();
 }
 
+// Named export: postAPI
+export async function postAPI(endpoint, data) {
+  return fetchAPI(endpoint, {
+    method: "POST",
+    body: JSON.stringify(data),
+  });
+}
+
 // Users
 export async function getUser() {
   return fetchAPI("users/me");
@@ -34,7 +41,7 @@ export async function updateUser(data) {
   });
 }
 
-// Listings (example)
+// Listings
 export async function getListings() {
   return fetchAPI("listings");
 }
@@ -45,3 +52,13 @@ export async function createListing(data) {
     body: JSON.stringify(data),
   });
 }
+
+// --- Default export ---
+export default {
+  fetchAPI,
+  postAPI,
+  getUser,
+  updateUser,
+  getListings,
+  createListing,
+};

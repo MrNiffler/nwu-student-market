@@ -1,7 +1,8 @@
 // src/context/AuthContext.jsx
 import React, { createContext, useContext, useState, useEffect } from "react";
 
-const AuthContext = createContext();
+// ✅ Export AuthContext so it can be imported by name
+export const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 // Dummy accounts (frontend-only)
@@ -73,29 +74,79 @@ export const AuthProvider = ({ children }) => {
     */
   };
 
-  // Sign up function (backend)
-  const signUp = async (full_name, email, password, student_number) => {
-    if (!full_name || !email || !password || !student_number) {
+  // ---------- Signup ----------
+  const signUp = async (full_name, email, password, student_number, role = "buyer") => {
+    if (!full_name || !email || !password || !student_number)
       throw new Error("All fields are required");
+
+    try {
+      const res = await registerUser({ full_name, email, password, student_number, role });
+      const { token } = res.data;
+      if (!token) throw new Error("No token returned");
+
+      setAuthToken(token);
+      const userRes = await axios.get("http://localhost:5000/api/users/me", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const user = userRes.data;
+      setCurrentUser(user);
+      setLocalUser(user, token);
+      return user;
+    } catch (err) {
+      console.error("Signup error:", err);
+      throw new Error(err.response?.data?.message || "Sign up failed");
     }
-
-    const res = await fetch("http://localhost:5000/api/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ full_name, email, password, student_number }),
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || "Sign up failed");
-    }
-
-    const data = await res.json();
-    setCurrentUser(data.user || { email });
-    localStorage.setItem("user", JSON.stringify(data.user || { email }));
-    return data.user;
   };
 
+  // ---------- Update User ----------
+  const updateUser = async (updates) => {
+    if (!currentUser) throw new Error("No logged-in user");
+
+    try {
+      const token = localStorage.getItem("token");
+      const data = new FormData();
+
+      // Append updates (supports file uploads, e.g., avatar)
+      Object.keys(updates).forEach((key) => {
+        if (updates[key] !== undefined && updates[key] !== null) {
+          data.append(key, updates[key]);
+        }
+      });
+
+      const res = await axios.patch(
+        "http://localhost:5000/api/users/me",
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      const updatedUser = res.data;
+      setCurrentUser(updatedUser);
+      localStorage.setItem("user", JSON.stringify(updatedUser));
+
+      return updatedUser;
+    } catch (err) {
+      console.error("Update user error:", err);
+      throw new Error(err.response?.data?.message || "Failed to update profile");
+    }
+  };
+
+  // ---------- Password Reset ----------
+  const sendPasswordReset = async (email) => {
+    if (!email) throw new Error("Email is required");
+    try {
+      await axios.post("http://localhost:5000/api/auth/forgot-password", { email });
+    } catch (err) {
+      console.error("Password reset error:", err);
+      throw new Error(err.response?.data?.message || "Failed to send reset link");
+    }
+  };
+
+  // ---------- Logout ----------
   const signOut = () => {
     setCurrentUser(null);
     localStorage.removeItem("user");
@@ -133,6 +184,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     signIn,
     signUp,
+    updateUser,        // new
     signOut,
     loginDummy,
     sendPasswordReset,

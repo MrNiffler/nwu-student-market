@@ -1,12 +1,17 @@
 import React from "react";
 
-function ChatThread({ messages }) {
+function ChatThread({ messages, userId }) {
   return (
     <div className="chat-thread">
-      {messages.map((msg, index) => (
-        <div key={index} className={`chat-message ${msg.sender === "me" ? "sent" : "received"}`}>
-          <p>{msg.text}</p>
-          <span>{msg.timestamp}</span>
+      {messages.map((msg) => (
+        <div
+          key={msg.id}
+          className={`chat-message ${
+            msg.sender_id === userId ? "sent" : "received"
+          }`}
+        >
+          <p>{msg.body}</p>
+          <span>{new Date(msg.created_at).toLocaleTimeString()}</span>
         </div>
       ))}
     </div>

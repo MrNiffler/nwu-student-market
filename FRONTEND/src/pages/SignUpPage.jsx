@@ -15,6 +15,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
+  const [invalidEmail, setInvalidEmail] = useState(false);
 
   // Password validation state
   const [passwordErrors, setPasswordErrors] = useState({
@@ -36,22 +37,26 @@ export default function SignUpPage() {
   }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    if (passwordErrors.length || passwordErrors.number || passwordErrors.match) {
-      setError("Please fix the errors above before signing up.");
-      return;
-    }
+  try {
+    const user = await signUp(full_name, email, password, student_number, role);
 
-    try {
-      await signUp(full_name, email, password, student_number);
-      navigate("/dashboard"); // ✅ redirect after signup
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Failed to sign up");
+    // Redirect based on role
+    if (user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/dashboard");
     }
-  };
+  } catch (err) {
+    setError(err.message || "Sign up failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="center-card slide-up">
