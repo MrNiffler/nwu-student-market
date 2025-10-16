@@ -14,24 +14,38 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
 
   // Redirect if already logged in
-  useEffect(() => {
-    if (currentUser) navigate("/dashboard");
-  }, [currentUser, navigate]);
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
-    try {
-      await signIn(email, password); // ✅ use AuthContext
+useEffect(() => {
+  if (currentUser) {
+    if (currentUser.role === "admin") {
+      navigate("/admin");
+    } else {
       navigate("/dashboard");
-    } catch (err) {
-      setError(err.message || "Invalid email or password. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  };
+  }
+}, [currentUser, navigate]);
+
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
+
+  try {
+    const user = await signIn(email, password); // ✅ use AuthContext
+
+    // Redirect based on role
+    if (user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/dashboard");
+    }
+  } catch (err) {
+    setError(err.message || "Invalid email or password. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   return (
     <div className="center-card slide-up">
