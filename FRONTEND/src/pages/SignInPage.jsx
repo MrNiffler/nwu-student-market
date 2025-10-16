@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { loginUser, setAuthToken } from "../api/endpoints.js"; 
+import { loginUser, setAuthToken } from "../api/endpoints.js";
 import axios from "axios";
 import "./SignInPage.css";
 
@@ -18,6 +18,7 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
+
       const res = await loginUser({ email, password });
       const { token } = res.data;
       if (!token) throw new Error("No token returned from server");
@@ -28,14 +29,15 @@ export default function SignInPage() {
       const userRes = await axios.get("http://localhost:5000/api/users/me", {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       const user = userRes.data;
       localStorage.setItem("user", JSON.stringify(user));
 
       navigate("/dashboard");
     } catch (err) {
       console.error(err);
-      setError(err.response?.data?.message || "Invalid email or password. Please try again.");
+      setError(
+        err.response?.data?.message || "Invalid email or password. Please try again."
+      );
     } finally {
       setLoading(false);
     }
