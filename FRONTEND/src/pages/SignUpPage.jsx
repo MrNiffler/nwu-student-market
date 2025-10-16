@@ -37,36 +37,26 @@ export default function SignUpPage() {
   }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setInvalidEmail(false);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    // NWU email validation
-    if (!email.toLowerCase().endsWith("@mynwu.ac.za")) {
-      setError("You cannot sign up without a NWU email address.");
-      setInvalidEmail(true);
-      return;
+  try {
+    const user = await signUp(full_name, email, password, student_number, role);
+
+    // Redirect based on role
+    if (user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/dashboard");
     }
+  } catch (err) {
+    setError(err.message || "Sign up failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
-    if (passwordErrors.length || passwordErrors.number || passwordErrors.match) {
-      setError("Please fix the errors above before signing up.");
-      return;
-    }
-
-    try {
-      const response = await signUp(full_name, email, password, student_number);
-
-      // Check if signup was successful
-      if (response && response.success) {
-        navigate("/dashboard"); // ✅ redirect after signup
-      } else {
-        setError(response?.message || "Sign up failed");
-      }
-    } catch (err) {
-      console.error(err);
-      setError(err.message || "Sign up failed");
-    }
-  };
 
   return (
     <div className="center-card slide-up">
