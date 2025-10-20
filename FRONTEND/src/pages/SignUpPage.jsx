@@ -15,7 +15,7 @@ export default function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
-  const [invalidEmail, setInvalidEmail] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   // Password validation state
   const [passwordErrors, setPasswordErrors] = useState({
@@ -37,26 +37,25 @@ export default function SignUpPage() {
   }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setError("");
-  setLoading(true);
+    e.preventDefault();
+    setError("");
+    setLoading(true);
 
-  try {
-    const user = await signUp(full_name, email, password, student_number, role);
+    try {
+      const user = await signUp(full_name, email, password, student_number, "buyer");
 
-    // Redirect based on role
-    if (user.role === "admin") {
-      navigate("/admin");
-    } else {
-      navigate("/dashboard");
+      // Redirect based on role
+      if (user.role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+    } catch (err) {
+      setError(err.message || "Sign up failed. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    setError(err.message || "Sign up failed. Please try again.");
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   return (
     <div className="center-card slide-up">
@@ -135,8 +134,11 @@ export default function SignUpPage() {
           {passwordErrors.match && <p>Passwords do not match.</p>}
         </div>
 
-        <button type="submit" disabled={passwordErrors.length || passwordErrors.number || passwordErrors.match}>
-          Sign Up
+        <button
+          type="submit"
+          disabled={passwordErrors.length || passwordErrors.number || passwordErrors.match || loading}
+        >
+          {loading ? "Signing Up..." : "Sign Up"}
         </button>
       </form>
     </div>
