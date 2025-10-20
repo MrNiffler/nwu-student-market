@@ -34,55 +34,49 @@ export const AuthProvider = ({ children }) => {
   };
 
   // ---------- Sign in ----------
-  const signIn = async (email, password) => {
-    if (!email || !password) throw new Error("Email and password are required");
+const signIn = async (email, password) => {
+  if (!email || !password) throw new Error("Email and password are required");
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/login", {
-        email,
-        password,
-      });
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/login", {
+      email,
+      password,
+    });
 
-      const token = res.data.token;
-      if (!token) throw new Error("No token returned");
+    const user = { ...res.data.user, token: res.data.token }; // ✅ add token
+    setCurrentUser(user);
+    setLocalUser(user);
 
-      localStorage.setItem("token", token);
+    return user;
+  } catch (err) {
+    console.error("Login error:", err);
+    throw new Error(err.response?.data?.message || err.message || "Login failed");
+  }
+};
 
-      // Fetch full user
-      return await fetchCurrentUser();
-    } catch (err) {
-      console.error("Login error:", err);
-      throw new Error(err.response?.data?.message || err.message || "Login failed");
-    }
-  };
+// ---------- Signup ----------
+const signUp = async (full_name, email, password, student_number, role = "buyer") => {
+  if (!full_name || !email || !password || !student_number)
+    throw new Error("All fields are required");
 
-  // ---------- Signup ----------
-  const signUp = async (full_name, email, password, student_number, role = "buyer") => {
-    if (!full_name || !email || !password || !student_number)
-      throw new Error("All fields are required");
+  try {
+    const res = await axios.post("http://localhost:5000/api/auth/register", {
+      full_name,
+      email,
+      password,
+      student_number,
+      role,
+    });
 
-    try {
-      const res = await axios.post("http://localhost:5000/api/auth/register", {
-        full_name,
-        email,
-        password,
-        student_number,
-        role,
-      });
-
-      const token = res.data.token; // backend does not return token
-      if (!token) {
-        // If backend doesn't return token, login immediately to get token
-        return await signIn(email, password);
-      }
-
-      localStorage.setItem("token", token);
-      return await fetchCurrentUser();
-    } catch (err) {
-      console.error("Signup error:", err);
-      throw new Error(err.response?.data?.message || "Sign up failed");
-    }
-  };
+    const user = { ...res.data.user, token: res.data.token || "" }; // ✅ add token if exists
+    setCurrentUser(user);
+    setLocalUser(user);
+    return user;
+  } catch (err) {
+    console.error("Signup error:", err);
+    throw new Error(err.response?.data?.message || "Sign up failed");
+  }
+};
 
   // ---------- Update User ----------
   const updateUser = async (updates) => {
