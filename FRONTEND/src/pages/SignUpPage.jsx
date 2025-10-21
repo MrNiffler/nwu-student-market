@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "./SignUpPage.css"; // reuse same CSS
+import "./SignUpPage.css"; // reuse same CSS or separate file as you prefer
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Password validation state
+  // Password validation state (true = has error)
   const [passwordErrors, setPasswordErrors] = useState({
     length: true,
     number: true,
@@ -28,6 +28,7 @@ export default function SignUpPage() {
     const length = password.length >= 6;
     const number = /\d/.test(password);
     const match = password === confirmPassword && password !== "";
+    // store booleans as "hasError" to match earlier usage (true => error)
     setPasswordErrors({ length: !length, number: !number, match: !match });
   }, [password, confirmPassword]);
 
@@ -58,14 +59,16 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="center-card slide-up">
+    <div className="center-card slide-up signup-container">
       <h1 className="page-title">Create Account</h1>
       <p className="muted">Join the NWU Student Market</p>
 
       {error && <p className="error">{error}</p>}
 
-      <form onSubmit={handleSubmit} className="form">
+      <form onSubmit={handleSubmit} className="form" autoComplete="on">
+        <label htmlFor="fullName">Full Name</label>
         <input
+          id="fullName"
           type="text"
           placeholder="Full Name"
           value={full_name}
@@ -73,7 +76,9 @@ export default function SignUpPage() {
           required
         />
 
+        <label htmlFor="email">Email</label>
         <input
+          id="email"
           type="email"
           placeholder="Email"
           value={email}
@@ -81,7 +86,9 @@ export default function SignUpPage() {
           required
         />
 
+        <label htmlFor="studentNumber">Student Number</label>
         <input
+          id="studentNumber"
           type="text"
           placeholder="Student Number"
           value={student_number}
@@ -89,9 +96,13 @@ export default function SignUpPage() {
           required
         />
 
-        {/* Password input */}
-        <div className="relative">
+        {/* Password input with inline eye toggle */}
+        <label htmlFor="password">Password</label>
+        <div className="input-wrapper">
           <input
+            id="password"
+            name="password"
+            autoComplete="new-password"
             type={showPassword ? "text" : "password"}
             placeholder="Password"
             value={password}
@@ -100,21 +111,40 @@ export default function SignUpPage() {
           />
           <button
             type="button"
-            className="show-hide-btn"
-            onClick={() => setShowPassword(!showPassword)}
+            className="toggle-password"
+            onClick={() => setShowPassword((s) => !s)}
+            aria-pressed={showPassword}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+            title={showPassword ? "Hide password" : "Show password"}
           >
-            {showPassword ? "Hide" : "Show"}
+            {showPassword ? (
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10.58 10.58a3 3 0 004.24 4.24" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2.23 12.13C3.83 7.5 7.5 4 12 4c2.2 0 4.2.82 5.77 2.18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21.77 11.86C20.17 16.5 16.5 20 12 20c-2.2 0-4.2-.82-5.77-2.18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
           </button>
         </div>
 
-        <div className="text-xs text-red-600 space-y-1">
-          {passwordErrors.length && <p>Password must be at least 6 characters long.</p>}
-          {passwordErrors.number && <p>Password must include at least one number.</p>}
+        <div className="text-xs" aria-live="polite" style={{ color: "#b91c1c", marginBottom: 8 }}>
+          {passwordErrors.length && <div>Password must be at least 6 characters long.</div>}
+          {passwordErrors.number && <div>Password must include at least one number.</div>}
         </div>
 
-        {/* Confirm Password input */}
-        <div className="relative">
+        {/* Confirm Password with inline eye toggle */}
+        <label htmlFor="confirmPassword">Confirm Password</label>
+        <div className="input-wrapper">
           <input
+            id="confirmPassword"
+            name="confirmPassword"
+            autoComplete="new-password"
             type={showConfirm ? "text" : "password"}
             placeholder="Confirm Password"
             value={confirmPassword}
@@ -123,15 +153,30 @@ export default function SignUpPage() {
           />
           <button
             type="button"
-            className="show-hide-btn"
-            onClick={() => setShowConfirm(!showConfirm)}
+            className="toggle-password"
+            onClick={() => setShowConfirm((s) => !s)}
+            aria-pressed={showConfirm}
+            aria-label={showConfirm ? "Hide confirm password" : "Show confirm password"}
+            title={showConfirm ? "Hide confirm password" : "Show confirm password"}
           >
-            {showConfirm ? "Hide" : "Show"}
+            {showConfirm ? (
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M3 3l18 18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M10.58 10.58a3 3 0 004.24 4.24" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M2.23 12.13C3.83 7.5 7.5 4 12 4c2.2 0 4.2.82 5.77 2.18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <path d="M21.77 11.86C20.17 16.5 16.5 20 12 20c-2.2 0-4.2-.82-5.77-2.18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            ) : (
+              <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                <path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
           </button>
         </div>
 
-        <div className="text-xs text-red-600 space-y-1">
-          {passwordErrors.match && <p>Passwords do not match.</p>}
+        <div className="text-xs" aria-live="polite" style={{ color: "#b91c1c", marginBottom: 8 }}>
+          {passwordErrors.match && <div>Passwords do not match.</div>}
         </div>
 
         <button
