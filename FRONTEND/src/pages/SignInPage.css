@@ -1,75 +1,75 @@
-/* signup.css - full file */
+/* signin.css - full file */
 
 :root {
-  --primary: #6C63FF;
-  --primary-hover: #5A54E0;
-  --bg: #F9FAFB;
-  --card-bg: #fff;
-  --text: #1F2937;
-  --muted: #6B7280;
-  --error: #EF4444;
-  --success: #10B981;
-  --radius: 12px;
-  --transition: 0.3s ease;
+  --font-primary: 'Roboto', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  --font-accent: 'Poppins', sans-serif;
+  --color-bg: #F9FAFB;
+  --color-text: #1F2937;
+  --color-muted: #6B7280;
+  --color-primary: #6C63FF;
+  --color-primary-hover: #5A54E0;
+  --color-error: #EF4444;
+  --border-radius: 12px;
+  --transition: 0.25s ease-in-out;
 }
 
-/* Reset / base */
+/* Page base */
 html, body {
   height: 100%;
   margin: 0;
-  background: var(--bg);
-  font-family: 'Roboto', sans-serif;
-  color: var(--text);
+  background-color: var(--color-bg);
+  font-family: var(--font-primary);
+  color: var(--color-text);
 }
 
-/* Card */
-.signup-container {
-  background: var(--card-bg);
+/* Container */
+.signin-container {
+  background-color: #fff;
   padding: 40px;
-  border-radius: var(--radius);
-  box-shadow: 0 8px 25px rgba(0,0,0,0.10);
-  max-width: 450px;
+  border-radius: var(--border-radius);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  max-width: 400px;
   width: 92%;
-  margin: 40px auto;
+  margin: 48px auto;
   text-align: center;
-  animation: fadeInUp 0.55s ease forwards;
+  animation: slide-up 0.45s ease forwards;
 }
 
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); }
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-.page-title {
-  font-family: 'Poppins', sans-serif;
-  font-size: 2rem;
+.signin-title {
+  font-family: var(--font-accent);
+  font-size: 1.9rem;
   margin-bottom: 0.5rem;
-  font-weight: 700;
+  color: var(--color-text);
 }
 
-/* sub text */
-.muted {
-  color: var(--muted);
+.signin-sub {
+  color: var(--color-muted);
   font-size: 0.95rem;
   margin-bottom: 1rem;
 }
 
-/* Form layout */
-.form {
+/* Form */
+.signin-form {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   text-align: left;
 }
 
-/* Label */
-.form label {
+/* Generic label */
+.signin-form label {
   display: block;
-  font-weight: 600;
-  color: var(--muted);
   margin-bottom: 6px;
+  font-weight: 600;
+  color: var(--color-text);
 }
 
-/* Input wrapper for inputs with eye toggle */
+/* Input wrapper - holds input + eye button */
 .input-wrapper {
   position: relative;
   width: 100%;
@@ -77,28 +77,28 @@ html, body {
 }
 
 /* Inputs */
-.form input[type="text"],
-.form input[type="email"],
-.form input[type="password"] {
+.signin-form input[type="email"],
+.signin-form input[type="password"],
+.signin-form input[type="text"] {
   width: 100%;
-  padding: 10px 44px 10px 12px; /* room on right for eye */
-  border-radius: calc(var(--radius) - 2px);
+  padding: 10px 44px 10px 12px; /* space on right for the eye */
+  border-radius: calc(var(--border-radius) - 2px);
   border: 1px solid #D1D5DB;
-  font-size: 1rem;
-  box-sizing: border-box;
-  transition: border-color var(--transition), box-shadow var(--transition);
-  color: var(--text);
   background: #fff;
+  font-size: 1rem;
+  color: var(--color-text);
+  transition: border-color var(--transition), box-shadow var(--transition);
+  box-sizing: border-box;
 }
 
-/* Focus */
-.form input:focus {
+/* Focus state */
+.signin-form input:focus {
   outline: none;
-  border-color: var(--primary);
-  box-shadow: 0 0 0 3px rgba(108,99,255,0.10);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(108, 99, 255, 0.10);
 }
 
-/* Eye toggle */
+/* Toggle eye - positioned inside input on the right */
 .toggle-password {
   position: absolute;
   top: 50%;
@@ -112,13 +112,14 @@ html, body {
   justify-content: center;
   cursor: pointer;
   border-radius: 8px;
-  color: var(--muted);
+  color: var(--color-muted);
   transition: background-color var(--transition), color var(--transition), transform var(--transition);
 }
 
+/* hover & focus */
 .toggle-password:hover {
   background-color: rgba(0,0,0,0.04);
-  color: var(--primary);
+  color: var(--color-primary);
   transform: translateY(-1px);
 }
 
@@ -127,6 +128,7 @@ html, body {
   outline-offset: 2px;
 }
 
+/* SVG sizing inside button */
 .toggle-password svg {
   width: 18px;
   height: 18px;
@@ -135,23 +137,23 @@ html, body {
   fill: none;
 }
 
-/* Submit */
+/* Submit button */
 button[type="submit"] {
   width: 100%;
-  padding: 0.8rem 0;
-  border-radius: var(--radius);
+  padding: 0.8rem 1rem;
+  margin-top: 6px;
+  border-radius: var(--border-radius);
   border: none;
-  background: var(--primary);
+  background-color: var(--color-primary);
   color: #fff;
   font-weight: 600;
-  font-size: 1rem;
   cursor: pointer;
-  transition: all var(--transition);
-  margin-top: 6px;
+  font-size: 1rem;
+  transition: background-color var(--transition), transform var(--transition);
 }
 
 button[type="submit"]:hover {
-  background: var(--primary-hover);
+  background-color: var(--color-primary-hover);
   transform: translateY(-2px);
 }
 
@@ -160,26 +162,30 @@ button[type="submit"]:disabled {
   cursor: not-allowed;
 }
 
-/* messages and helper row */
-.error { color: var(--error); font-size: 0.9rem; }
-.success { color: var(--success); font-size: 0.9rem; }
-
-.row {
+/* Footers and messages */
+.signin-footer {
   margin-top: 1rem;
   font-size: 0.95rem;
   text-align: center;
-  color: var(--muted);
+  color: var(--color-muted);
 }
 
-.row a {
-  color: var(--primary);
+.signin-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
   font-weight: 600;
 }
 
-/* Responsive */
+.signin-error {
+  color: var(--color-error);
+  font-size: 0.9rem;
+}
+
+/* Responsive tweaks */
 @media (max-width: 480px) {
-  .signup-container { padding: 28px 18px; width: 96%; margin: 24px auto; }
+  .signin-container { padding: 28px 18px; width: 96%; margin: 24px auto; }
   .toggle-password { right: 6px; padding: 8px; }
   .toggle-password svg { width: 16px; height: 16px; }
-  .page-title { font-size: 1.5rem; }
+  .signin-title { font-size: 1.5rem; }
+  button[type="submit"] { font-size: 0.95rem; padding: 0.7rem 0; }
 }
