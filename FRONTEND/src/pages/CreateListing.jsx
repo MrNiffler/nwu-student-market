@@ -8,10 +8,10 @@ const CreateListing = ({ addNotification = () => {} }) => {
   const { currentUser } = useAuth();
 
   const [formData, setFormData] = useState({
-    title: "",
     description: "",
     price: "",
     category_id: "",
+    type: "",
     image: null,
   });
   const [preview, setPreview] = useState(null);
@@ -43,7 +43,7 @@ const CreateListing = ({ addNotification = () => {} }) => {
       return;
     }
 
-    if (!formData.category_id || !formData.title || !formData.description || !formData.price) {
+    if (!formData.type || !formData.description || !formData.price) {
       addNotification("Please fill in all required fields", "error");
       return;
     }
@@ -52,21 +52,32 @@ const CreateListing = ({ addNotification = () => {} }) => {
       setLoading(true);
 
       const data = new FormData();
-      data.append("category_id", Number(formData.category_id)); // ensure number
-      data.append("type", formData.title); // backend expects "type"
+
+      if (formData.category_id) data.append("category_id", Number(formData.category_id));
+      data.append("type", formData.type);
       data.append("description", formData.description);
-      data.append("price", Number(formData.price));
+      data.append("price", parseFloat(formData.price));
+
       if (formData.image) data.append("image", formData.image);
+
+      console.log("Submitting payload:", {
+        category_id: formData.category_id ? Number(formData.category_id) : null,
+        type: formData.type,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        hasImage: !!formData.image,
+      });
 
       const response = await fetch("http://localhost:5000/api/listings", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${currentUser.token}`, // token required
+          Authorization: `Bearer ${currentUser.token}`,
         },
         body: data,
       });
 
       const result = await response.json();
+
       if (!response.ok) {
         throw new Error(result.message || "Failed to create listing");
       }
@@ -85,20 +96,10 @@ const CreateListing = ({ addNotification = () => {} }) => {
       <div className="create-listing-card">
         <h1>Create New Listing</h1>
         <form onSubmit={handleSubmit} className="create-listing-form">
-          <label>Title</label>
-          <input
-            type="text"
-            name="title"
-            placeholder="Listing title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-          />
-
           <label>Description</label>
           <textarea
             name="description"
-            placeholder="Describe your item"
+            placeholder="Describe your item or service"
             value={formData.description}
             onChange={handleChange}
             required
@@ -119,7 +120,6 @@ const CreateListing = ({ addNotification = () => {} }) => {
             name="category_id"
             value={formData.category_id}
             onChange={handleChange}
-            required
           >
             <option value="">Select category</option>
             {categories.map((cat) => (
@@ -127,6 +127,18 @@ const CreateListing = ({ addNotification = () => {} }) => {
                 {cat.name}
               </option>
             ))}
+          </select>
+
+          <label>Type</label>
+          <select
+            name="type"
+            value={formData.type}
+            onChange={handleChange}
+            required
+          >
+            <option value="">Select type</option>
+            <option value="product">Product</option>
+            <option value="service">Service</option>
           </select>
 
           <label>Upload Image</label>
