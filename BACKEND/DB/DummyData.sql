@@ -1,68 +1,106 @@
 -- ========================================
--- TEST DATA INSERTS 
+-- Seed Script for NWU Student Marketplace
 -- ========================================
 
--- USERS
-INSERT INTO Users (email, full_name, password_hash, student_number, role)
-VALUES
-('alice@example.com', 'Alice Smith', 'hashedpassword1', 'S1001', 'buyer'),
-('bob@example.com', 'Bob Johnson', 'hashedpassword2', 'S1002', 'seller'),
-('carol@example.com', 'Carol Lee', 'hashedpassword3', 'S1003', 'seller'),
-('dave@example.com', 'Dave Brown', 'hashedpassword4', 'S1004', 'buyer'),
-('admin@example.com', 'Admin User', 'hashedpassword5', 'S0001', 'admin');
+-- ---------------------------
+-- Clear existing data
+-- ---------------------------
+TRUNCATE TABLE messages, message_threads, reviews, transactions, bookings, cart, wishlist, listing_images, listings, categories, users RESTART IDENTITY CASCADE;
 
--- CATEGORIES
-INSERT INTO Categories (name)
+-- ---------------------------
+-- Users
+-- ---------------------------
+INSERT INTO users (id, email, full_name, password_hash, student_number, role, status)
 VALUES
-('Books'),
-('Electronics'),
-('Furniture'),
-('Services');
+(34364401, 'alice@student.nwu.ac.za', 'Alice Smith', '$2b$10$w2mw.U0IFDQoh5fNCO6.yehPmzXvZikXl/7DmMIKaZorUOOUIM9e2', 'S1001', 'user', 'active'),
+(34364402, 'bob@student.nwu.ac.za', 'Bob Johnson', '$2b$10$w2mw.U0IFDQoh5fNCO6.yehPmzXvZikXl/7DmMIKaZorUOOUIM9e2', 'S1002', 'user', 'active'),
+(34364403, 'carol@student.nwu.ac.za', 'Carol Williams', '$2b$10$w2mw.U0IFDQoh5fNCO6.yehPmzXvZikXl/7DmMIKaZorUOOUIM9e2', 'S1003', 'user', 'active'),
+(34364404, 'dave@student.nwu.ac.za', 'Dave Brown', '$2b$10$w2mw.U0IFDQoh5fNCO6.yehPmzXvZikXl/7DmMIKaZorUOOUIM9e2', 'S1004', 'admin', 'active'),
+(34364405, 'test@student.nwu.ac.za', 'Test User', '$2b$10$w2mw.U0IFDQoh5fNCO6.yehPmzXvZikXl/7DmMIKaZorUOOUIM9e2', 'S9999', 'user', 'active');
 
--- LISTINGS
-INSERT INTO Listings (seller_id, category_id, type, description, price)
+-- ---------------------------
+-- Categories
+-- ---------------------------
+INSERT INTO categories (id, name, parent_id)
 VALUES
-(2, 1, 'product', 'Calculus Textbook, lightly used', 300.00),
-(3, 2, 'product', 'Used Laptop Dell Inspiron', 4500.00),
-(2, 3, 'product', 'Second-hand Office Chair', 750.00),
-(3, 4, 'service', 'Tutoring Service: Mathematics', 200.00);
+(1, 'Electronics', NULL),
+(2, 'Mobile Phones', 1),
+(3, 'Computers', 1),
+(4, 'Services', NULL),
+(5, 'Tutoring', 4),
+(6, 'Cleaning', 4);
 
--- LISTING IMAGES
-INSERT INTO Listing_Images (listing_id, url, alt_text)
+-- ---------------------------
+-- Listings
+-- ---------------------------
+INSERT INTO listings (id, seller_id, category_id, type, description, price, status)
 VALUES
-(1, 'uploads/book1.jpg', 'Calculus Textbook Cover'),
-(2, 'uploads/laptop1.jpg', 'Dell Inspiron Laptop'),
-(3, 'uploads/chair1.jpg', 'Office Chair'),
-(4, 'uploads/tutor1.jpg', 'Math Tutoring');
+(101, 34364401, 2, 'product', 'iPhone 13 for sale, 128GB', 7500.00, 'active'),
+(102, 34364403, 3, 'product', 'Laptop Dell Inspiron, 16GB RAM', 12000.00, 'active'),
+(103, 34364404, 5, 'service', 'Math tutoring for first-year students', 200.00, 'active');
 
--- BOOKINGS
-INSERT INTO Bookings (listing_id, buyer_id, start_time, end_time, status)
+-- ---------------------------
+-- Listing Images
+-- ---------------------------
+INSERT INTO listing_images (listing_id, url, alt_text)
 VALUES
-(1, 1, '2025-09-25 10:00', '2025-09-25 12:00', 'confirmed'),
-(2, 4, '2025-09-26 14:00', '2025-09-26 16:00', 'requested');
+(101, 'https://example.com/images/iphone13.jpg', 'iPhone 13 front view'),
+(102, 'https://example.com/images/dell_laptop.jpg', 'Dell Inspiron laptop'),
+(103, 'https://example.com/images/tutoring.jpg', 'Math tutoring session');
 
--- TRANSACTIONS
-INSERT INTO Transactions (listing_id, buyer_id, seller_id, amount, status)
+-- ---------------------------
+-- Bookings
+-- ---------------------------
+INSERT INTO bookings (listing_id, buyer_id, start_time, end_time, status)
 VALUES
-(1, 1, 2, 300.00, 'paid'),
-(2, 4, 3, 4500.00, 'pending');
+(103, 34364402, '2025-10-20 10:00:00', '2025-10-20 12:00:00', 'requested');
 
--- REVIEWS (using transaction_id now)
-INSERT INTO Reviews (reviewer_id, reviewee_id, transaction_id, rating, comment)
+-- ---------------------------
+-- Transactions
+-- ---------------------------
+INSERT INTO transactions (listing_id, buyer_id, seller_id, amount, status)
 VALUES
-(1, 2, 1, 5, 'Great seller, fast delivery!'),
-(4, 3, 2, 4, 'Laptop in good condition');
+(101, 34364402, 34364401, 7500.00, 'pending'),
+(102, 34364402, 34364403, 12000.00, 'paid');
 
--- MESSAGE THREADS
-INSERT INTO Message_Threads (listing_id, buyer_id, seller_id)
+-- ---------------------------
+-- Reviews
+-- ---------------------------
+INSERT INTO reviews (reviewer_id, reviewee_id, transaction_id, rating, comment)
 VALUES
-(1, 1, 2),
-(2, 4, 3);
+(34364402, 34364401, 1, 5, 'Great seller, very responsive!'),
+(34364402, 34364403, 2, 4, 'Laptop as described, good service');
 
--- MESSAGES
-INSERT INTO Messages (thread_id, sender_id, body)
+-- ---------------------------
+-- Message Threads
+-- ---------------------------
+INSERT INTO message_threads (listing_id, buyer_id, seller_id)
 VALUES
-(1, 1, 'Hi, is the textbook still available?'),
-(1, 2, 'Yes, it is available.'),
-(2, 4, 'Can I negotiate the laptop price?'),
-(2, 3, 'Sure, make me an offer.');
+(101, 34364402, 34364401),
+(102, 34364402, 34364403);
+
+-- ---------------------------
+-- Messages
+-- ---------------------------
+INSERT INTO messages (thread_id, sender_id, body)
+VALUES
+(1, 34364402, 'Hi, is the iPhone still available?'),
+(1, 34364401, 'Yes, it is available.'),
+(2, 34364402, 'Is the laptop still for sale?'),
+(2, 34364403, 'Yes, it is ready for pickup.');
+
+-- ---------------------------
+-- Wishlist
+-- ---------------------------
+INSERT INTO wishlist (user_id, listing_id)
+VALUES
+(34364402, 101),
+(34364402, 102);
+
+-- ---------------------------
+-- Cart
+-- ---------------------------
+INSERT INTO cart (user_id, listing_id, quantity)
+VALUES
+(34364402, 101, 1),
+(34364402, 102, 1);
