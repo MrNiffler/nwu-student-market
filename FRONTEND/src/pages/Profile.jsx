@@ -1,4 +1,3 @@
-// src/pages/Profile.jsx
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -14,9 +13,39 @@ const Profile = ({ cart = [], wishlist = [] }) => {
     email: "",
     role: "",
     student_number: "",
+    // avatar can be: File (when uploading), or string URL/path (when using URL)
     avatar: null,
+    avatar_url: "", // text input for avatar URL (optional)
   });
   const [preview, setPreview] = useState(null);
+
+  // Helpers
+  const isImageString = (val) => {
+    if (!val) return false;
+    // blob:, data:, http(s)://, or leading slash for local path like /uploads/...
+    return (
+      typeof val === "string" &&
+      (val.startsWith("http://") ||
+        val.startsWith("https://") ||
+        val.startsWith("data:") ||
+        val.startsWith("blob:") ||
+        val.startsWith("/"))
+    );
+  };
+
+  const getInitials = (nameOrEmail) => {
+    if (!nameOrEmail) return "";
+    const name = nameOrEmail.trim();
+    // If looks like email use part before @
+    const base = name.includes("@") ? name.split("@")[0] : name;
+    const parts = base.split(/\s+/).filter(Boolean);
+    if (parts.length === 1) {
+      const first = parts[0];
+      return (first[0] || "").toUpperCase();
+    }
+    const initials = (parts[0][0] || "") + (parts[parts.length - 1][0] || "");
+    return initials.toUpperCase();
+  };
 
   useEffect(() => {
     if (currentUser) {
@@ -26,18 +55,32 @@ const Profile = ({ cart = [], wishlist = [] }) => {
         role: currentUser.role || "",
         student_number: currentUser.student_number || "",
         avatar: null,
+        avatar_url: typeof currentUser.avatar === "string" ? currentUser.avatar : "",
       });
-      setPreview(currentUser.avatar || "/uploads/default-avatar.png");
+
+      // preview: prefer a string avatar; otherwise null so initials render
+      const avatarValue = currentUser.avatar || null;
+      setPreview(avatarValue);
     }
   }, [currentUser]);
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
-    if (files) {
-      setFormData({ ...formData, [name]: files[0] });
-      setPreview(URL.createObjectURL(files[0]));
+    if (files && files.length > 0) {
+      const file = files[0];
+      setFormData((prev) => ({ ...prev, [name]: file, avatar_url: "" }));
+      // create a blob preview
+      const blobUrl = URL.createObjectURL(file);
+      setPreview(blobUrl);
     } else {
-      setFormData({ ...formData, [name]: value });
+      // text input (avatar_url or other fields)
+      setFormData((prev) => ({ ...prev, [name]: value }));
+      if (name === "avatar_url") {
+        // setting preview immediately if valid-looking URL (user might paste)
+        setPreview(value || null);
+        // also set avatar to the URL string so handleSave will send it
+        setFormData((prev) => ({ ...prev, avatar: value || null, avatar_url: value }));
+      }
     }
   };
 
@@ -45,17 +88,19 @@ const Profile = ({ cart = [], wishlist = [] }) => {
     try {
       setLoading(true);
 
-      // Send all required fields to backend to prevent NOT NULL errors
+      // If avatar is a File, backend should handle multipart/form-data file upload.
+      // If avatar is a string (URL/path), send that string.
       await updateUser({
         full_name: formData.full_name || currentUser.full_name,
         email: formData.email || currentUser.email,
         student_number: formData.student_number || currentUser.student_number,
-        avatar: formData.avatar,
+        // send either File or string (your updateUser must support both)
+        avatar: formData.avatar || (formData.avatar_url ? formData.avatar_url : null),
       });
 
       setEditing(false);
     } catch (err) {
-      alert(err.message || "Failed to update profile");
+      alert(err?.message || "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -63,20 +108,46 @@ const Profile = ({ cart = [], wishlist = [] }) => {
 
   if (!currentUser) return <p>Loading profile...</p>;
 
+  const initials = getInitials(currentUser.full_name || currentUser.email);
+
   return (
     <div className="profile-page">
       <div className="profile-card">
         <h1>My Profile</h1>
 
         <div className="profile-picture">
-          <img src={preview} alt="Profile" />
+          {/* If preview is an image string (URL/blob/data) show image; otherwise show initials */}
+          {isImageString(preview) ? (
+            <img src={preview} alt="Profile" className="avatar-img" />
+          ) : (
+            <div className="initials-avatar" aria-hidden>
+              {initials}
+            </div>
+          )}
+
           {editing && (
-            <input
-              type="file"
-              name="avatar"
-              accept="image/*"
-              onChange={handleChange}
-            />
+            <div className="avatar-controls">
+              <label className="file-label">
+                Upload Image
+                <input
+                  type="file"
+                  name="avatar"
+                  accept="image/*"
+                  onChange={handleChange}
+                />
+              </label>
+
+              <label className="url-label">
+                Or paste image URL
+                <input
+                  type="text"
+                  name="avatar_url"
+                  placeholder="https://example.com/avatar.jpg"
+                  value={formData.avatar_url}
+                  onChange={handleChange}
+                />
+              </label>
+            </div>
           )}
         </div>
 
