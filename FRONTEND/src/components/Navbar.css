@@ -77,3 +77,18 @@
 }
 
 
+/* Subtle Sign Out styling */
+.subtle-signout {
+  color: #1F2937;       /* match regular nav links */
+  text-decoration: none; /* remove underline */
+  font-weight: 500;      /* same as other links */
+  padding: 0.5rem 0.8rem;
+  border-radius: 8px;
+  transition: background 0.2s, transform 0.2s;
+  cursor: pointer;
+}
+
+.subtle-signout:hover {
+  background: #EDE9FE;   /* same hover as other links */
+  transform: translateY(-2px);
+}

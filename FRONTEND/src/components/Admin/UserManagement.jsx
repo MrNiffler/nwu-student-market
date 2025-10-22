@@ -10,7 +10,7 @@ function UserManagement() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/users/", {
+      const res = await axios.get("http://localhost:5000/api/admin/users", {
         headers: { Authorization: `Bearer ${currentUser.token}` },
       });
       setUsers(res.data);
@@ -25,26 +25,33 @@ function UserManagement() {
     fetchUsers();
   }, []);
 
-  const toggleBan = async (user) => {
+  const handleApprove = async (id) => {
     try {
-      await axios.post(
-        `http://localhost:5000/admin/manage-user/${user.id}`,
+      await axios.patch(
+        `http://localhost:5000/api/admin/users/${id}/approve`,
         {},
-        {
-          headers: { Authorization: `Bearer ${currentUser.token}` },
-        }
+        { headers: { Authorization: `Bearer ${currentUser.token}` } }
       );
-      // Update local state
       setUsers((prev) =>
-        prev.map((u) =>
-          u.id === user.id
-            ? { ...u, status: u.status === "active" ? "banned" : "active" }
-            : u
-        )
+        prev.map((u) => (u.id === id ? { ...u, approved: true } : u))
       );
     } catch (err) {
-      console.error("Failed to manage user:", err);
-      alert("Failed to update user status");
+      console.error(err);
+      alert("Failed to approve user");
+    }
+  };
+
+  const handleReject = async (id) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/api/admin/users/${id}/reject`,
+        {},
+        { headers: { Authorization: `Bearer ${currentUser.token}` } }
+      );
+      setUsers((prev) => prev.filter((u) => u.id !== id));
+    } catch (err) {
+      console.error(err);
+      alert("Failed to reject user");
     }
   };
 
@@ -52,16 +59,15 @@ function UserManagement() {
 
   return (
     <div>
-      <h2 className="text-2xl font-semibold mb-4 text-gray-800">
-        User Management
-      </h2>
+      <h2 className="text-2xl font-semibold mb-4">User Management</h2>
       <table className="w-full border border-gray-300 rounded-md overflow-hidden">
         <thead className="bg-gray-100">
           <tr>
             <th className="border p-2 text-left">Name</th>
             <th className="border p-2 text-left">Email</th>
-            <th className="border p-2 text-left">Status</th>
-            <th className="border p-2 text-center">Action</th>
+            <th className="border p-2 text-left">Role</th>
+            <th className="border p-2 text-left">Approved</th>
+            <th className="border p-2 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -69,24 +75,31 @@ function UserManagement() {
             <tr key={u.id} className="hover:bg-gray-50">
               <td className="border p-2">{u.full_name}</td>
               <td className="border p-2">{u.email}</td>
+              <td className="border p-2">{u.role}</td>
               <td
                 className={`border p-2 font-medium ${
-                  u.status === "banned" ? "text-red-600" : "text-green-600"
+                  u.approved ? "text-green-600" : "text-red-600"
                 }`}
               >
-                {u.status}
+                {u.approved ? "Yes" : "No"}
               </td>
-              <td className="border p-2 text-center">
-                <button
-                  onClick={() => toggleBan(u)}
-                  className={`px-3 py-1 rounded-md text-white ${
-                    u.status === "active"
-                      ? "bg-red-500 hover:bg-red-600"
-                      : "bg-green-500 hover:bg-green-600"
-                  }`}
-                >
-                  {u.status === "active" ? "Ban" : "Unban"}
-                </button>
+              <td className="border p-2 text-center space-x-2">
+                {!u.approved && (
+                  <>
+                    <button
+                      onClick={() => handleApprove(u.id)}
+                      className="px-3 py-1 rounded-md bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      Approve
+                    </button>
+                    <button
+                      onClick={() => handleReject(u.id)}
+                      className="px-3 py-1 rounded-md bg-red-500 hover:bg-red-600 text-white"
+                    >
+                      Reject
+                    </button>
+                  </>
+                )}
               </td>
             </tr>
           ))}

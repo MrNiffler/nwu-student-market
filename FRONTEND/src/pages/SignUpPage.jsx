@@ -38,25 +38,32 @@ export default function SignUpPage() {
   }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-    try {
-      const user = await signUp(full_name, email, password, student_number, "buyer");
+  // ✅ Frontend email domain check
+  if (!email.trim().toLowerCase().endsWith("@mynwu.ac.za")) {
+    setError("You must use your @mynwu.ac.za email to sign up.");
+    setLoading(false);
+    return;
+  }
 
-      // Redirect based on role
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
-    } catch (err) {
-      setError(err.message || "Sign up failed. Please try again.");
-    } finally {
-      setLoading(false);
+  try {
+    const user = await signUp(full_name, email, password, student_number, "buyer");
+
+    // Redirect based on role
+    if (user.role === "admin") {
+      navigate("/admin");
+    } else {
+      navigate("/dashboard");
     }
-  };
+  } catch (err) {
+    setError(err.message || "Sign up failed. Please try again.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="center-card slide-up signup-container">

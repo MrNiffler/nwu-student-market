@@ -1,109 +1,86 @@
-// src/components/Admin/AnalyticsPage.jsx
-import React, { useEffect, useState } from "react";
-import { Bar, Pie } from "react-chartjs-2";
+import { useEffect, useState } from "react";
+import axios from "axios";
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
-  ArcElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend,
 } from "chart.js";
+import { Line } from "react-chartjs-2";
 import { useAuth } from "../../context/AuthContext";
-import axios from "axios";
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
-  ArcElement,
+  PointElement,
+  LineElement,
   Title,
   Tooltip,
   Legend
 );
 
-export default function AnalyticsPage() {
+const AnalyticsPage = () => {
   const { currentUser } = useAuth();
-  const [listings, setListings] = useState([]);
+  const [analytics, setAnalytics] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  const fetchData = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/listings", {
-        headers: { Authorization: `Bearer ${currentUser.token}` },
-      });
-      setListings(res.data);
-    } catch (err) {
-      console.error("Failed to fetch listings:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    const fetchAnalytics = async () => {
+      try {
+        // Fixed endpoint to match backend
+        const res = await axios.get("/api/admin/metrics", {
+          headers: { Authorization: `Bearer ${currentUser?.token}` },
+        });
+        setAnalytics(res.data);
+      } catch (err) {
+        console.error("Error fetching admin metrics:", err);
+        setError("Failed to load analytics data");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const transactions = listings.reduce((acc, l) => acc + (l.sales || 0), 0);
+    if (currentUser?.token) {
+      fetchAnalytics();
+    }
+  }, [currentUser]);
 
-  const categoryCounts = listings.reduce((acc, item) => {
-    const cat = item.category || "Uncategorized";
-    acc[cat] = (acc[cat] || 0) + 1;
-    return acc;
-  }, {});
+  if (loading) return <div className="p-4">Loading analytics...</div>;
+  if (error) return <div className="p-4 text-red-500">{error}</div>;
+  if (!analytics)
+    return <div className="p-4 text-gray-500">No analytics data available</div>;
 
-  const barData = {
-    labels: listings.map((l) => l.title || "Unknown"),
+  const chartData = {
+    labels: analytics.months || [],
     datasets: [
       {
-        label: "Active Listings",
-        data: listings.map((l) => (l.status === "active" ? 1 : 0)),
-        backgroundColor: "rgba(75, 192, 192, 0.6)",
+        label: "Sales",
+        data: analytics.sales || [],
+        borderColor: "rgba(34,197,94,1)",
+        backgroundColor: "rgba(34,197,94,0.2)",
+      },
+      {
+        label: "New Users",
+        data: analytics.newUsers || [],
+        borderColor: "rgba(59,130,246,1)",
+        backgroundColor: "rgba(59,130,246,0.2)",
       },
     ],
   };
-
-  const pieData = {
-    labels: Object.keys(categoryCounts),
-    datasets: [
-      {
-        label: "Categories",
-        data: Object.values(categoryCounts),
-        backgroundColor: [
-          "#FF6384",
-          "#36A2EB",
-          "#FFCE56",
-          "#4BC0C0",
-          "#9966FF",
-          "#FF9F40",
-        ],
-      },
-    ],
-  };
-
-  if (loading) return <p>Loading analytics...</p>;
 
   return (
-    <div style={{ padding: "2rem" }}>
-      <h1>Admin Analytics Dashboard</h1>
-
-      <section style={{ margin: "2rem 0" }}>
-        <h2>Metrics</h2>
-        <p>Total Listings: {listings.length}</p>
-        <p>Total Transactions: {transactions}</p>
-      </section>
-
-      <section style={{ margin: "2rem 0" }}>
-        <h2>Active Listings</h2>
-        <Bar data={barData} />
-      </section>
-
-      <section style={{ margin: "2rem 0" }}>
-        <h2>Most-Used Categories</h2>
-        <Pie data={pieData} />
-      </section>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Analytics</h1>
+      <div className="bg-white shadow rounded p-4">
+        <Line data={chartData} />
+      </div>
     </div>
   );
-}
+};
+
+export default AnalyticsPage;
