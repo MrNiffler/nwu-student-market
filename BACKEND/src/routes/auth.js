@@ -30,7 +30,14 @@ router.post('/register', async (req, res) => {
       [full_name, email, hashedPassword, student_number, role || 'buyer']
     );
 
-    res.status(201).json({ message: 'User created!', user: result.rows[0] });
+    // Sign token immediately
+    const token = jwt.sign(
+      { id: result.rows[0].id, role: result.rows[0].role },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    res.status(201).json({ message: 'User created!', user: result.rows[0], token });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -64,6 +71,26 @@ router.post('/login', async (req, res) => {
 });
 
 // -------------------------
+// USERS /me
+// -------------------------
+import { authenticate } from '../middleware/auth.js';
+
+router.get('/me', authenticate, async (req, res) => {
+  try {
+    const result = await pool.query(
+      'SELECT id, full_name, email, role, student_number FROM users WHERE id=$1',
+      [req.user.id]
+    );
+    const user = result.rows[0];
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    res.json(user);
+  } catch (err) {
+    console.error('Error fetching /me:', err);
+    res.status(500).json({ message: 'Failed to fetch user' });
+  }
+});
+
+// -------------------------
 // FORGOT PASSWORD
 // -------------------------
 router.post('/forgot-password', async (req, res) => {
@@ -83,7 +110,6 @@ router.post('/forgot-password', async (req, res) => {
       [user.id, token, expires]
     );
 
-    // send email
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: { user: process.env.EMAIL_USER, pass: process.env.EMAIL_PASS }
@@ -96,7 +122,7 @@ router.post('/forgot-password', async (req, res) => {
       text: `Click this link to reset password: http://localhost:3000/reset-password?token=${token}`
     };
 
-    transporter.sendMail(mailOptions, (err, info) => {
+    transporter.sendMail(mailOptions, (err) => {
       if (err) console.error(err);
     });
 
@@ -129,10 +155,7 @@ router.post('/reset-password', async (req, res) => {
       [hashedPassword, reset.user_id]
     );
 
-    await pool.query(
-      'DELETE FROM password_resets WHERE id=$1',
-      [reset.id]
-    );
+    await pool.query('DELETE FROM password_resets WHERE id=$1', [reset.id]);
 
     res.json({ message: 'Password has been reset' });
   } catch (err) {

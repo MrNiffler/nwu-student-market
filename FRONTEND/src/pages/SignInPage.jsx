@@ -5,7 +5,7 @@ import "./SignInPage.css";
 
 export default function SignInPage() {
   const navigate = useNavigate();
-  const { signIn, currentUser } = useAuth();
+  const { signIn, currentUser, loadingUser } = useAuth(); // ✅ added loadingUser
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -15,14 +15,14 @@ export default function SignInPage() {
 
   // Redirect if already logged in
   useEffect(() => {
-    if (currentUser) {
+    if (!loadingUser && currentUser) {
       if (currentUser.role === "admin") {
         navigate("/admin");
       } else {
         navigate("/dashboard");
       }
     }
-  }, [currentUser, navigate]);
+  }, [currentUser, loadingUser, navigate]); // ✅ added loadingUser
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,14 +30,8 @@ export default function SignInPage() {
     setLoading(true);
 
     try {
-      const user = await signIn(email, password); // ✅ backend login
-
-      // Redirect based on role
-      if (user.role === "admin") {
-        navigate("/admin");
-      } else {
-        navigate("/dashboard");
-      }
+      await signIn(email, password); // ✅ do not navigate manually
+      // ProtectedRoute will handle the redirect after currentUser is set
     } catch (err) {
       setError(err.message || "Invalid email or password. Please try again.");
     } finally {

@@ -15,7 +15,7 @@ function Cart({ cart, setCart, addNotification }) {
       if (!userId) return;
       try {
         const res = await getUserCart(userId);
-        setCart(res.data.data || []); // live items only
+        setCart(res.data?.data || []);
       } catch (err) {
         console.error("Error fetching cart:", err);
         addNotification("Failed to load cart", "error");
@@ -23,8 +23,10 @@ function Cart({ cart, setCart, addNotification }) {
         setLoading(false);
       }
     };
+
     fetchCart();
-  }, [userId]);
+    // Only run on mount or if userId changes
+  }, [userId, setCart, addNotification]);
 
   const handleRemove = async (id) => {
     try {
@@ -44,9 +46,7 @@ function Cart({ cart, setCart, addNotification }) {
   if (cart.length === 0)
     return (
       <div className="page-container">
-        <h2>
-          Your cart is empty
-        </h2>
+        <h2>Your cart is empty</h2>
         <Link to="/marketplace" className="btn-primary">
           Browse Marketplace
         </Link>

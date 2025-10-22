@@ -1,9 +1,17 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FaShoppingCart, FaHeart } from "react-icons/fa";
 import "./Navbar.css";
 import { useAuth } from "../context/AuthContext";
 
 function Navbar({ cartCount = 0, wishlistCount = 0 }) {
+  const { currentUser, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = () => {
+    signOut();
+    navigate("/signin");
+  };
+
   return (
     <nav className="navbar">
       <div>
@@ -16,15 +24,35 @@ function Navbar({ cartCount = 0, wishlistCount = 0 }) {
         <li>
           <Link to="/marketplace">Marketplace</Link>
         </li>
-        <li>
-          <Link to="/profile">Profile</Link>
-        </li>
-        <li>
-          <Link to="/signin">Sign In</Link>
-        </li>
-        <li>
-          <Link to="/signup">Sign Up</Link>
-        </li>
+        {currentUser ? (
+          <>
+            <li>
+              <Link to="/profile">Profile</Link>
+            </li>
+            {/* Dashboard link for all roles */}
+            <li>
+              <Link to="/dashboard">Dashboard</Link>
+            </li>
+            <li>
+              <span
+                className="nav-link subtle-signout"
+                onClick={handleSignOut}
+                style={{ cursor: "pointer" }}
+              >
+                Sign Out
+              </span>
+            </li>
+          </>
+        ) : (
+          <>
+            <li>
+              <Link to="/signin">Sign In</Link>
+            </li>
+            <li>
+              <Link to="/signup">Sign Up</Link>
+            </li>
+          </>
+        )}
         <li>
           <Link to="/wishlist" className="icon-link">
             <FaHeart className="nav-icon" />
@@ -43,4 +71,3 @@ function Navbar({ cartCount = 0, wishlistCount = 0 }) {
 }
 
 export default Navbar;
-

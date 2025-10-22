@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { useAuth } from "./context/AuthContext"; // ✅ import your Auth context
+import { useAuth } from "./context/AuthContext";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -21,17 +21,28 @@ import CancelPage from "./pages/CancelPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OAuthCallbackPage from "./pages/OAuthCallbackPage";
 import CreateListing from "./pages/CreateListing";
-import Dashboard from "./components/Dashboard"; 
+import Dashboard from "./components/Dashboard";
 
-// ProtectedRoute updated to redirect not-logged-in users to /signin
-const ProtectedRoute = ({ children }) => {
-  const { currentUser } = useAuth();
-  return currentUser ? children : <Navigate to="/signin" replace />;
-};
-
-// 🟣 Admin Dashboard & Analytics
+// Admin Components
 import AdminDashboard from "./components/Admin/AdminDashboard";
 import AnalyticsPage from "./components/Admin/AnalyticsPage";
+import AdminListingsPage from "./components/Admin/AdminListingsPage";
+import AdminOrdersPage from "./components/Admin/AdminOrdersPage";
+import AdminUsersPage from "./components/Admin/AdminUsersPage";
+
+const ProtectedRoute = ({ children, role }) => {
+  const { currentUser, loadingUser } = useAuth();
+
+  if (loadingUser) return <div>Loading...</div>;
+  if (!currentUser) return <Navigate to="/signin" replace />;
+
+  if (role && currentUser.role !== role) {
+    if (currentUser.role === "admin") return <Navigate to="/admin" replace />;
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return children;
+};
 
 function App() {
   const [cart, setCart] = useState([
@@ -41,7 +52,7 @@ function App() {
 
   const [wishlist, setWishlist] = useState([]);
   const [notifications, setNotifications] = useState([]);
-  const { currentUser } = useAuth(); // ✅ use currentUser from context
+  const { fetchCurrentUser } = useAuth();
 
   const addNotification = (message, type = "success") => {
     const id = Date.now();
@@ -51,6 +62,10 @@ function App() {
   const removeNotification = (id) => {
     setNotifications((prev) => prev.filter((n) => n.id !== id));
   };
+
+  useEffect(() => {
+    fetchCurrentUser();
+  }, []);
 
   return (
     <Router>
@@ -74,8 +89,6 @@ function App() {
           <Route path="/signin" element={<SignInPage />} />
           <Route path="/signup" element={<SignUpPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-
-          {/* NWU OAuth callback */}
           <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
 
           {/* Protected pages */}
@@ -83,7 +96,7 @@ function App() {
             path="/profile"
             element={
               <ProtectedRoute>
-                <Profile cart={cart} wishlist={wishlist} user={currentUser} />
+                <Profile cart={cart} wishlist={wishlist} />
               </ProtectedRoute>
             }
           />
@@ -111,8 +124,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* ✅ Create Listing Page */}
           <Route
             path="/create-listing"
             element={
@@ -121,8 +132,6 @@ function App() {
               </ProtectedRoute>
             }
           />
-
-          {/* ✅ User Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -132,31 +141,26 @@ function App() {
             }
           />
 
-          {/* Order flow */}
-          <Route path="/success" element={<SuccessPage />} />
-          <Route path="/cancel" element={<CancelPage />} />
-
-          {/* 🟣 Admin Panel */}
+          {/* ✅ Admin Routes */}
           <Route
             path="/admin"
             element={
-              currentUser?.role === "admin" ? (
-                <AdminDashboard user={currentUser} />
-              ) : (
-                <Navigate to="/signin" replace />
-              )
+              <ProtectedRoute role="admin">
+                <AdminDashboard addNotification={addNotification} />
+              </ProtectedRoute>
             }
-          />
-          <Route
-            path="/admin/analytics"
-            element={
-              currentUser?.role === "admin" ? (
-                <AnalyticsPage />
-              ) : (
-                <Navigate to="/signin" replace />
-              )
-            }
-          />
+          >
+            <Route index element={<AnalyticsPage />} />
+            <Route path="analytics" element={<AnalyticsPage />} />
+            <Route path="listings" element={<AdminListingsPage />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            {/* ✅ Updated: Pass addNotification here */}
+            <Route path="users" element={<AdminUsersPage addNotification={addNotification} />} />
+          </Route>
+
+          {/* Order flow */}
+          <Route path="/success" element={<SuccessPage />} />
+          <Route path="/cancel" element={<CancelPage />} />
 
           {/* Catch all */}
           <Route path="*" element={<NotFoundPage />} />

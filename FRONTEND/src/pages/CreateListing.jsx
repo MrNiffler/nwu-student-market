@@ -36,60 +36,73 @@ const CreateListing = ({ addNotification = () => {} }) => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (!currentUser) {
-      addNotification("You must be logged in to create a listing", "error");
-      return;
-    }
+  if (!currentUser) {
+    addNotification("You must be logged in to create a listing", "error");
+    return;
+  }
 
-    if (!formData.type || !formData.description || !formData.price) {
-      addNotification("Please fill in all required fields", "error");
-      return;
-    }
+  if (!formData.type || !formData.description || !formData.price) {
+    addNotification(
+      "Please fill in all required fields (type, description, price)",
+      "error"
+    );
+    return;
+  }
 
-    try {
-      setLoading(true);
+  try {
+    setLoading(true);
 
+    let response;
+    const token = currentUser.token;
+
+    if (formData.image) {
+      // Use FormData if there's an image
       const data = new FormData();
-
-      if (formData.category_id) data.append("category_id", Number(formData.category_id));
       data.append("type", formData.type);
       data.append("description", formData.description);
       data.append("price", parseFloat(formData.price));
+      data.append("category_id", formData.category_id ? Number(formData.category_id) : null);
+      data.append("image", formData.image);
 
-      if (formData.image) data.append("image", formData.image);
-
-      console.log("Submitting payload:", {
-        category_id: formData.category_id ? Number(formData.category_id) : null,
-        type: formData.type,
-        description: formData.description,
-        price: parseFloat(formData.price),
-        hasImage: !!formData.image,
-      });
-
-      const response = await fetch("http://localhost:5000/api/listings", {
+      response = await fetch("http://localhost:5000/api/listings", {
         method: "POST",
         headers: {
-          Authorization: `Bearer ${currentUser.token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: data,
       });
+    } else {
+      // Use JSON if no image
+      const payload = {
+        type: formData.type,
+        description: formData.description,
+        price: parseFloat(formData.price),
+        category_id: formData.category_id ? Number(formData.category_id) : null,
+      };
 
-      const result = await response.json();
-
-      if (!response.ok) {
-        throw new Error(result.message || "Failed to create listing");
-      }
-
-      addNotification("Listing created successfully!", "success");
-      navigate("/dashboard");
-    } catch (error) {
-      addNotification(error.message, "error");
-    } finally {
-      setLoading(false);
+      response = await fetch("http://localhost:5000/api/listings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(payload),
+      });
     }
-  };
+
+    const result = await response.json();
+    if (!response.ok) throw new Error(result.message || "Failed to create listing");
+
+    addNotification("Listing created successfully!", "success");
+    navigate("/dashboard");
+  } catch (error) {
+    addNotification(error.message, "error");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="create-listing-page">
@@ -115,7 +128,7 @@ const CreateListing = ({ addNotification = () => {} }) => {
             required
           />
 
-          <label>Category</label>
+          <label>Category (optional)</label>
           <select
             name="category_id"
             value={formData.category_id}
@@ -141,7 +154,7 @@ const CreateListing = ({ addNotification = () => {} }) => {
             <option value="service">Service</option>
           </select>
 
-          <label>Upload Image</label>
+          <label>Upload Image (optional)</label>
           <input
             type="file"
             name="image"
