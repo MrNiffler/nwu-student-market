@@ -12,7 +12,7 @@ import searchRouter from "./routes/search.route.js";
 import listingsRouter from "./routes/listings.route.js";
 import reviewsRouter from "./routes/reviews.route.js";
 import authRouter from "./routes/auth.js";
-import usersRouter from "./routes/user.js";
+import usersRouter from './routes/users.route.js';
 import adminRouter from "./routes/admin.js";
 import wishlistRouter from "./routes/wishlist.route.js"; 
 import cartRouter from "./routes/cart.route.js";         
